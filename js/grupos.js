@@ -157,23 +157,6 @@ async function convidarMembro(groupId) {
   carregarMembrosDoGrupo(groupId);
 }
 
-async function limparDados() {
-  const confirmacao = confirm(
-    'Isso vai apagar TODOS os grupos, sessões, filmes e votos (de todos os usuários). Os usuários e senhas continuam intactos. Confirma?'
-  );
-  if (!confirmacao) return;
-
-  // Apaga na ordem certa por causa das foreign keys
-  await supabaseClient.from('votes').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-  await supabaseClient.from('movies').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-  await supabaseClient.from('sessions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-  await supabaseClient.from('group_members').delete().neq('group_id', '00000000-0000-0000-0000-000000000000');
-  await supabaseClient.from('groups').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-
-  alert('Dados de teste limpos! Usuários mantidos.');
-  carregarGrupos();
-}
-
 async function carregarHistoricoDoGrupo(groupId) {
   const { data: sessoesFechadas } = await supabaseClient
     .from('sessions')

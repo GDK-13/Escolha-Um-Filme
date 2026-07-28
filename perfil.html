@@ -6,6 +6,7 @@
   <title>Meu Perfil</title>
   <link rel="stylesheet" href="css/style.css">
   <script src="js/theme.js"></script>
+  <script src="js/customizacao-aplicar.js"></script>
 </head>
 <body>
   <div class="container">
@@ -14,25 +15,124 @@
       <nav class="nav-principal">
         <a href="grupos.html">← Grupos</a>
         <a href="amigos.html">Amigos</a>
+        <a href="customizacao.html">Personalizar</a>
       </nav>
       <div>
         <button class="theme-toggle" id="btn-tema" onclick="alternarTema()">☀️ Claro</button>
+        <button id="btn-densidade" onclick="alternarDensidade()">📏 Compacto</button>
         <button onclick="logout()">Sair</button>
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="card-perfil-principal">
+      <div class="area-capa">
+        <img id="perfil-capa" class="perfil-capa" alt="Capa do perfil" style="display:none;">
+        <div class="preview-capa-area" id="preview-capa-area" style="display:none;">
+          <p><em>Pré-visualização da capa (ainda não salva):</em></p>
+          <img id="preview-capa" class="perfil-capa preview-capa">
+          <div class="preview-foto-botoes">
+            <button onclick="confirmarNovaCapa()">✅ Confirmar capa</button>
+            <button class="btn-perigo" onclick="cancelarNovaCapa()">✖️ Cancelar</button>
+          </div>
+        </div>
+        <label class="btn-upload-icone">
+          🖼️ Trocar capa
+          <input type="file" id="input-capa" accept="image/*" style="display:none" onchange="previsualizarCapa(this)">
+        </label>
+      </div>
+
       <h2 id="perfil-nome">Carregando...</h2>
+      <p class="humor-status" id="perfil-humor"></p>
 
       <img id="perfil-foto" class="perfil-foto" alt="Foto de perfil">
-      <input type="file" id="input-foto" accept="image/*" onchange="trocarFoto(this)">
+      <div class="avatar-emoji-grande" id="avatar-emoji-grande" style="display:none;"></div>
 
-      <textarea id="perfil-bio" placeholder="Fale um pouco sobre você..." maxlength="200"></textarea>
+      <div class="preview-foto-area" id="preview-foto-area" style="display:none;">
+        <p><em>Pré-visualização (ainda não salva):</em></p>
+        <img id="preview-foto" class="perfil-foto preview-foto">
+        <div class="preview-foto-botoes">
+          <button onclick="confirmarNovaFoto()">✅ Confirmar foto</button>
+          <button class="btn-perigo" onclick="cancelarNovaFoto()">✖️ Cancelar</button>
+        </div>
+      </div>
+
+      <label class="btn-upload-icone">
+        📷 Trocar foto
+        <input type="file" id="input-foto" accept="image/*" style="display:none" onchange="previsualizarFoto(this)">
+      </label>
+
+      <div class="campo-avatar-emoji">
+        <label for="avatar-emoji-input">Usar emoji como avatar em vez da foto (opcional):</label>
+        <input type="text" id="avatar-emoji-input" placeholder="Ex: 🎬" maxlength="8">
+        <button onclick="salvarAvatarEmoji()">Salvar</button>
+        <button class="btn-perigo" onclick="limparAvatarEmoji()">Remover emoji</button>
+      </div>
+
+      <label for="cor-destaque-input">Cor de destaque do seu perfil:</label>
+      <input type="color" id="cor-destaque-input" class="campo-cor" onchange="salvarCorDestaque(this.value)">
+
+      <textarea id="perfil-bio" placeholder="Fale um pouco sobre você..." maxlength="200" oninput="atualizarContadorBio()"></textarea>
+      <p class="contador-bio" id="contador-bio">200 caracteres restantes</p>
       <button onclick="salvarBio()">Salvar bio</button>
 
       <p id="perfil-erro" class="erro"></p>
     </div>
+
+    <div class="card">
+      <h2>Sobre os filmes</h2>
+
+      <label for="input-filme-favorito">Filme favorito</label>
+      <input type="text" id="input-filme-favorito" placeholder="Ex: Interestelar">
+
+      <label for="input-genero-favorito">Gênero favorito</label>
+      <input type="text" id="input-genero-favorito" placeholder="Ex: Ficção científica">
+
+      <label for="input-streaming-favorito">Streaming que mais usa</label>
+      <input type="text" id="input-streaming-favorito" placeholder="Ex: Netflix">
+
+      <label for="input-link-externo">Link externo (Letterboxd, Instagram...)</label>
+      <input type="text" id="input-link-externo" placeholder="https://letterboxd.com/seu-usuario">
+
+      <button onclick="salvarInfoExtras()">Salvar informações</button>
+      <p id="info-extras-erro" class="erro"></p>
+
+      <div class="tags-perfil" id="tags-perfil-preview"></div>
+    </div>
+
+    <div class="card" id="card-top-filmes" style="display:none;">
+      <h2>🏆 Top 5 filmes</h2>
+      <ol class="top-filmes-lista" id="top-filmes-lista"></ol>
+    </div>
+
+    <p class="intro">Quer mudar humor, moldura, música, cores ou o fundo do site? <a href="customizacao.html">Personalize aqui</a>.</p>
+
+    <div class="player-musica-flutuante" id="player-musica" style="display:none;">
+      <button id="btn-tocar-musica" onclick="alternarMusica()">▶️ Tocar música do perfil</button>
+      <div id="musica-embed"></div>
+    </div>
+
+    <div class="card">
+      <h2>Editar informações pessoais</h2>
+
+      <label for="editar-nome">Nome</label>
+      <input type="text" id="editar-nome" placeholder="Seu nome" onkeypress="if(event.key==='Enter') editarNomeUsuario()">
+      <button onclick="editarNomeUsuario()">Salvar nome</button>
+      <p id="editar-nome-erro" class="erro"></p>
+
+      <label for="editar-apelido">Apelido (exibido no lugar do nome, se preenchido)</label>
+      <input type="text" id="editar-apelido" placeholder="Como quer aparecer pros outros" onkeypress="if(event.key==='Enter') editarApelido()">
+      <button onclick="editarApelido()">Salvar apelido</button>
+      <p id="editar-apelido-erro" class="erro"></p>
+
+      <label for="senha-atual">Senha atual</label>
+      <input type="password" id="senha-atual" placeholder="Senha atual" onkeypress="if(event.key==='Enter') document.getElementById('senha-nova').focus()">
+      <label for="senha-nova">Nova senha</label>
+      <input type="password" id="senha-nova" placeholder="Nova senha" onkeypress="if(event.key==='Enter') editarSenhaUsuario()">
+      <button onclick="editarSenhaUsuario()">Salvar nova senha</button>
+      <p id="editar-senha-erro" class="erro"></p>
+    </div>
   </div>
+
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>

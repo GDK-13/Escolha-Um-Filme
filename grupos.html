@@ -6,17 +6,56 @@
   <title>Meus Grupos</title>
   <link rel="stylesheet" href="css/style.css">
   <script src="js/theme.js"></script>
+  <script src="js/customizacao-aplicar.js"></script>
 </head>
 <body>
+
+  <div class="decoracao-lateral-esq">
+    <img src="https://y2k.neocities.org/stamps2/untitled_by_theartofnotlikingyou-d6lqqe6.gif">
+    <img src="https://y2k.neocities.org/stamps2/tumblr_inline_phwh7b9JTr1w0aona_500.png">
+    <img src="https://y2k.neocities.org/stamps2/technicolor_junkie_stamp_by_kittystuff-d71u0q1.png">
+    <img src="https://y2k.neocities.org/stamps/tumblr_ogq54gRQYZ1vgzpiyo2_100.png">
+    <img src="https://y2k.neocities.org/stamps2/pastel%20(10).gif">
+    <img src="https://y2k.neocities.org/stamps/tumblr_inline_pe6ls8KMwp1v11djx_1280.gif">
+    <img src="https://y2k.neocities.org/stamps2/__fuck______by_unicorn_gal-dbzcf9e.png">
+    <img src="https://y2k.neocities.org/stamps2/94df5fea899150086a606c99df8fb4ba-db3tsoo.gif">
+    <img src="https://y2k.neocities.org/stamps/weekender%20girl%20dubstep%20nightcore%20vaporwave%20bass-boosted%20remix%20must%20watch.gif">
+    <img src="https://y2k.neocities.org/stamps/tumblr_inline_pe6lz0YRnL1v11djx_1280.png">
+    <img src="https://y2k.neocities.org/stamps/tumblr_p65xsqxXBo1te4ajdo4_100.gif">
+    <img src="https://y2k.neocities.org/stamps2/tumblr_inline_phwim6Kdtr1w0aona_500.gif">
+  </div>
+
+  <!-- COLUNA DIREITA -->
+  <div class="decoracao-lateral-dir">
+    <img src="https://y2k.neocities.org/stamps/tumblr_pidamp8Rf61xk82cxo2_100.gif">
+    <img src="https://y2k.neocities.org/stamps2/d4mrxhu-0382b033-293b-4b0c-a9c5-0d1158379067.png">
+    <img src="https://y2k.neocities.org/stamps/tumblr_pdu1u6f4Fy1wpplaao3_100.gif">
+    <img src="https://y2k.neocities.org/stamps2/paranoid_stamp_by_lucifossie-dcb6jhi.gif">
+    <img src="https://y2k.neocities.org/stamps/tumblr_pi7cobtTob1xy0eh3o3_100.gif">
+    <img src="https://y2k.neocities.org/stamps/tumblr_static_6gbg6fja8p8o8c88s4swccg0s.png">
+    <img src="https://y2k.neocities.org/stamps/tumblr_inline_pe6lifzHgx1v11djx_1280.gif">
+    <img src="https://y2k.neocities.org/stamps/nihilism_stamp_by_kitopia-daspjpe.gif">
+    <img src="https://y2k.neocities.org/stamps/i_love_anything_paranormal_by_ladykatrianna.gif">
+    <img src="https://y2k.neocities.org/stamps2/old_web_stamp_by_vtge-dcgi6h4.png">
+    <img src="https://y2k.neocities.org/stamps2/i_never_understood_the_hate_by_teruing-d6z5fbt.png">
+    <img src="https://y2k.neocities.org/stamps2/we_all_go_to_hell_stamp_by_rotten_eyed-dco5km7.gif">
+  </div>
+
   <div class="container">
         <div class="topo">
+          <div class="marquise">
+            <div id="texto-aleatorio" class="marquise-texto">Carregando textos...</div>
+          </div>
         <h1>🎬 Meus Grupos</h1>
+        <p id="aviso-votacoes" class="aviso-votacoes" style="display:none;"></p>
         <nav class="nav-principal">
             <a href="perfil.html">Perfil</a>
+            <a href="customizacao.html">Personalizar</a>
             <a href="amigos.html">Amigos</a>
         </nav>
         <div>
             <button class="theme-toggle" id="btn-tema" onclick="alternarTema()">☀️ Claro</button>
+        <button id="btn-densidade" onclick="alternarDensidade()">📏 Compacto</button>
             <button onclick="logout()">Sair</button>
         </div>
     </div>
@@ -28,7 +67,22 @@
     </div>
 
     <div id="lista-grupos"></div>
+
   </div>
+
+  <footer class="site-footer">
+    <div class="site-footer-info">
+      <p>© 2026 - Todos os direitos <em>supostamente</em> reservados.</p>
+      <p>Site mantido por surtos.</p>
+      <p>Desenvolvido à base de lisdexanfetamina e muito tempo livre.</p>
+    </div>
+    <div class="blinkies-container">
+      <img src="https://y2k.neocities.org/blinkiez/newbatch/clgblinkie036.gif"">
+      <img src="https://y2k.neocities.org/blinkiez/754667r8n2u197zw.gif"">
+      <img src="https://y2k.neocities.org/blinkiez/1437980lbkrfqb4ze.gif"">
+      <img src="https://y2k.neocities.org/blinkiez/1564181t14241bxnn.gif"">
+    </div>
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>

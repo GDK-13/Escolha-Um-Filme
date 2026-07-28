@@ -6,6 +6,7 @@
   <title>Meus Amigos</title>
   <link rel="stylesheet" href="css/style.css">
   <script src="js/theme.js"></script>
+  <script src="js/customizacao-aplicar.js"></script>
 </head>
 <body>
   <div class="container">
@@ -14,9 +15,11 @@
       <nav class="nav-principal">
         <a href="grupos.html">← Grupos</a>
         <a href="perfil.html">Perfil</a>
+        <a href="customizacao.html">Personalizar</a>
       </nav>
       <div>
         <button class="theme-toggle" id="btn-tema" onclick="alternarTema()">☀️ Claro</button>
+        <button id="btn-densidade" onclick="alternarDensidade()">📏 Compacto</button>
         <button onclick="logout()">Sair</button>
       </div>
     </div>
@@ -30,6 +33,19 @@
 
     <div id="lista-amigos">Carregando...</div>
   </div>
+  <footer class="site-footer">
+    <div class="site-footer-info">
+      <p>© 2026 - Todos os direitos <em>supostamente</em> reservados.</p>
+      <p>Site mantido por surtos.</p>
+      <p>Desenvolvido à base de lisdexanfetamina e muito tempo livre.</p>
+    </div>
+    <div class="blinkies-container">
+      <img src="https://y2k.neocities.org/blinkiez/newbatch/clgblinkie036.gif"">
+      <img src="https://y2k.neocities.org/blinkiez/754667r8n2u197zw.gif"">
+      <img src="https://y2k.neocities.org/blinkiez/1437980lbkrfqb4ze.gif"">
+      <img src="https://y2k.neocities.org/blinkiez/1564181t14241bxnn.gif"">
+    </div>
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>

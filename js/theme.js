@@ -15,6 +15,7 @@ function alternarTema() {
   }
   localStorage.setItem('tema', novo);
   atualizarBotaoTema();
+  if (typeof reaplicarCoresCustomizadas === 'function') reaplicarCoresCustomizadas();
 }
 
 function atualizarBotaoTema() {
@@ -25,3 +26,67 @@ function atualizarBotaoTema() {
 }
 
 document.addEventListener('DOMContentLoaded', atualizarBotaoTema);
+
+// ---- Densidade da interface (compacta / confortável) ----
+(function aplicarDensidadeSalva() {
+  const salva = localStorage.getItem('densidade') || 'confortavel';
+  if (salva === 'compacta') document.documentElement.setAttribute('data-densidade', 'compacta');
+})();
+
+function alternarDensidade() {
+  const atual = document.documentElement.getAttribute('data-densidade') === 'compacta' ? 'compacta' : 'confortavel';
+  const nova = atual === 'compacta' ? 'confortavel' : 'compacta';
+
+  if (nova === 'compacta') {
+    document.documentElement.setAttribute('data-densidade', 'compacta');
+  } else {
+    document.documentElement.removeAttribute('data-densidade');
+  }
+  localStorage.setItem('densidade', nova);
+  atualizarBotaoDensidade();
+}
+
+function atualizarBotaoDensidade() {
+  const btn = document.getElementById('btn-densidade');
+  if (!btn) return;
+  const compacta = document.documentElement.getAttribute('data-densidade') === 'compacta';
+  btn.textContent = compacta ? '📏 Confortável' : '📏 Compacto';
+}
+
+document.addEventListener('DOMContentLoaded', atualizarBotaoDensidade);
+
+// Aguarda a página carregar
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Defina aqui a sua lista de textos malucos/nostálgicos
+  const textos = [
+    "Esse site conta com acessoria jurídica do escritório Dra. Logarta Littlecouto",
+    "Site otimizado para Internet Explorer 5.0 e Netscape Navigator",
+    "Você é o visitante nº 004829",
+    "Em construção... 🚧",
+    "👷🪏🚧Desculpe o transtoro, estamos Mudando o País👷🪏🚧",
+    "Perdão, foi a coca.",
+    "Oi meu nome é Funéria, tenho 14 anos (Teria se estivesse viva), morri aos 13 em teresina-PI.",
+    "Site de Viados Tirões",
+    "Capaz...",
+    "Não esqueçam de votar no filme! A sessão já vai começar 🍿🎬",
+    "bete? || é a bete que tá falando || ué, o meu também é bete ||  engraçado o meu também é bete || alô? || alô, quem fala? || bete? || quem é que tá ligando? || bete || bete? || o meu também é bete || o meu nome é bete, o seu também é bete, mas com quem você quer falar? || bete.",
+    "I can give you Paris Hilton, I can give you Janet. Could give you Björk, but I don't think you'd understand it. I could give you sex doll, bitch, you love these legend lips.  And baby, I could give you model, with these double A-cup tits.",
+    "Pedro Henrique Oliveira Garcia, quem é?    ||   ELE👉   ||   (╬☉д⊙) ＝ᅳᅳᅳᅴ)๏д๏))･;’. ",
+    "Ah, num dá! Eu vou pular fora, que eu vou pra casa. A RÁ RÁ RÁ RÁ RÁ RÁ RÁ RÁ tchatchatchau! Beijinhos pra voceissss meninosxss.",
+    "Correspondente da Choquei direto de Ratanabá 🙍‍♀️🎙️"  ];
+
+const marqueeTexto = document.getElementById('texto-aleatorio');
+  
+  if (marqueeTexto) {
+
+    const trocarTexto = () => {
+      const indiceAleatorio = Math.floor(Math.random() * textos.length);
+      marqueeTexto.textContent = textos[indiceAleatorio];
+    };
+
+    trocarTexto();
+
+
+    marqueeTexto.addEventListener('animationiteration', trocarTexto);
+  }
+});

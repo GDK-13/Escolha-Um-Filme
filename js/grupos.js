@@ -14,6 +14,8 @@ async function carregarGrupos() {
     return;
   }
 
+  carregarAvisoVotacoes(groupIds);
+
   const { data: grupos } = await supabaseClient
     .from('groups')
     .select('*')
@@ -23,31 +25,92 @@ async function carregarGrupos() {
   container.innerHTML = '';
 
   for (const grupo of grupos) {
+    const souCriador = grupo.criado_por === usuario.id;
+    const colapsado = localStorage.getItem(`grupo-colapsado-${grupo.id}`) === '1';
     const div = document.createElement('div');
     div.className = 'card';
     div.innerHTML = `
-        <h3>${grupo.nome}</h3>
-        <div id="membros-${grupo.id}"><em>Carregando membros...</em></div>
-        <div class="convidar">
-            <input type="text" placeholder="Nome do amigo" id="convite-${grupo.id}">
-            <button onclick="convidarMembro('${grupo.id}')">Adicionar ao grupo</button>
-            <p class="erro" id="convite-erro-${grupo.id}"></p>
+        <div class="cabecalho-grupo">
+          <div class="cabecalho-grupo-titulo">
+            <button class="btn-colapsar" onclick="alternarGrupo('${grupo.id}')" id="toggle-${grupo.id}">${colapsado ? '▶' : '▼'}</button>
+            ${grupo.icone_url
+              ? `<img src="${grupo.icone_url}" class="grupo-icone" alt="Ícone do grupo">`
+              : `<span class="grupo-icone-vazio">🎬</span>`
+            }
+            <h3 id="nome-grupo-${grupo.id}">${grupo.nome}</h3>
+          </div>
+          <div class="acoes-grupo">
+            ${souCriador
+              ? `<label class="btn-upload-icone">
+                   🖼️ Ícone
+                   <input type="file" accept="image/*" style="display:none" onchange="trocarIconeGrupo('${grupo.id}', this)">
+                 </label>
+                 <button onclick="editarNomeGrupo('${grupo.id}', '${grupo.nome.replace(/'/g, "\\'")}')">✏️ Renomear</button>
+                 <button class="btn-perigo" onclick="excluirGrupo('${grupo.id}')">🗑️ Excluir grupo</button>`
+              : `<button class="btn-perigo" onclick="sairDoGrupo('${grupo.id}')">🚪 Sair do grupo</button>`
+            }
+          </div>
         </div>
-        <div id="sessoes-${grupo.id}">Carregando sessões...</div>
-        <div class="nova-sessao">
-            <input type="text" placeholder="Título da sessão (ex: Noite 02/08)" id="titulo-${grupo.id}">
-            <button onclick="criarSessao('${grupo.id}')">Nova sessão</button>
+        <div class="corpo-grupo ${colapsado ? 'colapsado' : ''}" id="corpo-${grupo.id}">
+          <div id="membros-${grupo.id}"><em>Carregando membros...</em></div>
+          <div class="convidar">
+              <input type="text" placeholder="Nome do amigo" id="convite-${grupo.id}">
+              <button onclick="convidarMembro('${grupo.id}')">Adicionar ao grupo</button>
+              <p class="erro" id="convite-erro-${grupo.id}"></p>
+          </div>
+          <div id="sessoes-${grupo.id}">Carregando sessões...</div>
+          <div class="nova-sessao">
+              <input type="text" placeholder="Título da sessão (ex: Noite 02/08)" id="titulo-${grupo.id}">
+              <input type="date" id="data-${grupo.id}">
+              <input type="time" id="horario-${grupo.id}">
+              <input type="text" placeholder="Local (ex: casa do João, streaming)" id="local-${grupo.id}">
+              <button onclick="criarSessao('${grupo.id}')">Nova sessão</button>
+          </div>
+          <details>
+              <summary>📜 Histórico de vencedores</summary>
+              <div id="historico-${grupo.id}">Carregando...</div>
+          </details>
         </div>
-        <details>
-            <summary>📜 Histórico de vencedores</summary>
-            <div id="historico-${grupo.id}">Carregando...</div>
-        </details>
         `;
     container.appendChild(div);
     carregarMembrosDoGrupo(grupo.id);
     carregarSessoesDoGrupo(grupo.id);
     carregarHistoricoDoGrupo(grupo.id);
   }
+}
+
+async function carregarAvisoVotacoes(groupIds) {
+  const { data: sessoesAbertas } = await supabaseClient
+    .from('sessions')
+    .select('id')
+    .in('group_id', groupIds)
+    .eq('status', 'aberta');
+
+  const el = document.getElementById('aviso-votacoes');
+  if (!sessoesAbertas || sessoesAbertas.length === 0) {
+    el.style.display = 'none';
+    return;
+  }
+
+  const sessionIds = sessoesAbertas.map(s => s.id);
+  const { data: meusVotos } = await supabaseClient
+    .from('votes')
+    .select('session_id')
+    .eq('user_id', usuario.id)
+    .in('session_id', sessionIds);
+
+  const jaVotei = new Set((meusVotos || []).map(v => v.session_id));
+  const pendentes = sessionIds.filter(id => !jaVotei.has(id)).length;
+
+  if (pendentes === 0) {
+    el.style.display = 'none';
+    return;
+  }
+
+  el.textContent = pendentes === 1
+    ? '🍿 Você tem 1 sessão aberta aguardando seu voto!'
+    : `🍿 Você tem ${pendentes} sessões abertas aguardando seu voto!`;
+  el.style.display = 'block';
 }
 
 async function carregarSessoesDoGrupo(groupId) {
@@ -63,12 +126,28 @@ async function carregarSessoesDoGrupo(groupId) {
     return;
   }
 
-  el.innerHTML = sessoes.map(s => `
+  el.innerHTML = sessoes.map(s => {
+    const souCriador = s.criado_por === usuario.id;
+    const detalhes = [
+      s.data_sessao ? new Date(s.data_sessao + 'T00:00:00').toLocaleDateString('pt-BR') : null,
+      s.horario || null,
+      s.local || null
+    ].filter(Boolean).join(' · ');
+
+    return `
     <div class="sessao-item">
-      <a href="sessao.html?id=${s.id}">${s.titulo}</a>
-      <span class="status ${s.status}">${s.status}</span>
+      <div>
+        <a href="sessao.html?id=${s.id}">${s.titulo}</a>
+        <span class="status ${s.status}">${s.status}</span>
+        ${detalhes ? `<div class="detalhes-sessao">${detalhes}</div>` : ''}
+      </div>
+      ${souCriador ? `
+        <button onclick="editarTituloSessao('${s.id}', '${groupId}', '${s.titulo.replace(/'/g, "\\'")}')">✏️</button>
+        <button class="btn-perigo" onclick="excluirSessao('${s.id}', '${groupId}')">🗑️</button>
+      ` : ''}
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 async function criarGrupo() {
@@ -97,15 +176,30 @@ async function criarSessao(groupId) {
   const titulo = input.value.trim();
   if (!titulo) return;
 
+  const data_sessao = document.getElementById(`data-${groupId}`).value || null;
+  const horario = document.getElementById(`horario-${groupId}`).value || null;
+  const local = document.getElementById(`local-${groupId}`).value.trim() || null;
+
   await supabaseClient.from('sessions').insert([
-    { group_id: groupId, titulo, status: 'aberta' }
+    { group_id: groupId, titulo, status: 'aberta', criado_por: usuario.id, data_sessao, horario, local }
   ]);
 
   input.value = '';
+  document.getElementById(`data-${groupId}`).value = '';
+  document.getElementById(`horario-${groupId}`).value = '';
+  document.getElementById(`local-${groupId}`).value = '';
   carregarSessoesDoGrupo(groupId);
 }
 
 async function carregarMembrosDoGrupo(groupId) {
+  const { data: grupo } = await supabaseClient
+    .from('groups')
+    .select('criado_por')
+    .eq('id', groupId)
+    .single();
+
+  const souCriadorDoGrupo = grupo && grupo.criado_por === usuario.id;
+
   const { data: memberships } = await supabaseClient
     .from('group_members')
     .select('user_id')
@@ -114,12 +208,53 @@ async function carregarMembrosDoGrupo(groupId) {
   const userIds = (memberships || []).map(m => m.user_id);
   const { data: membros } = await supabaseClient
     .from('users')
-    .select('nome')
+    .select('id, nome')
     .in('id', userIds);
 
   const el = document.getElementById(`membros-${groupId}`);
   el.innerHTML = '<strong>Membros:</strong> ' +
-    (membros || []).map(m => m.nome).join(', ');
+    (membros || []).map(m => {
+      const ehCriador = m.id === (grupo && grupo.criado_por);
+      const podeRemover = souCriadorDoGrupo && !ehCriador;
+      return `<span class="membro-item">${m.nome}${ehCriador ? ' 👑' : ''}${
+        podeRemover
+          ? ` <button class="btn-perigo btn-mini" onclick="removerMembro('${groupId}', '${m.id}', '${m.nome.replace(/'/g, "\\'")}')">remover</button>`
+          : ''
+      }</span>`;
+    }).join(', ');
+}
+
+async function removerMembro(groupId, userId, nomeMembro) {
+  if (!confirm(`Remover ${nomeMembro} do grupo?`)) return;
+
+  const { data: grupo } = await supabaseClient
+    .from('groups')
+    .select('criado_por')
+    .eq('id', groupId)
+    .single();
+
+  if (!grupo || grupo.criado_por !== usuario.id) {
+    alert('Só quem criou o grupo pode remover membros.');
+    return;
+  }
+
+  if (userId === grupo.criado_por) {
+    alert('O criador do grupo não pode ser removido. Exclua o grupo se quiser encerrá-lo.');
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from('group_members')
+    .delete()
+    .eq('group_id', groupId)
+    .eq('user_id', userId);
+
+  if (error) {
+    alert('Erro ao remover membro.');
+    return;
+  }
+
+  carregarMembrosDoGrupo(groupId);
 }
 
 async function convidarMembro(groupId) {
@@ -201,6 +336,218 @@ async function carregarHistoricoDoGrupo(groupId) {
   }
 
   el.innerHTML = linhas.join('');
+}
+
+async function sairDoGrupo(groupId) {
+  const { data: grupo } = await supabaseClient
+    .from('groups')
+    .select('criado_por')
+    .eq('id', groupId)
+    .single();
+
+  if (grupo && grupo.criado_por === usuario.id) {
+    alert('Você é o criador desse grupo e não pode sair dele. Exclua o grupo se quiser encerrá-lo.');
+    return;
+  }
+
+  if (!confirm('Tem certeza que quer sair desse grupo? Você vai perder acesso às sessões dele.')) return;
+
+  const { error } = await supabaseClient
+    .from('group_members')
+    .delete()
+    .eq('group_id', groupId)
+    .eq('user_id', usuario.id);
+
+  if (error) {
+    alert('Erro ao sair do grupo.');
+    return;
+  }
+
+  carregarGrupos();
+}
+
+async function excluirGrupo(groupId) {
+  if (!confirm('Isso vai excluir o grupo, todas as sessões, filmes e votos dele PARA SEMPRE. Confirma?')) return;
+
+  const { data: grupo } = await supabaseClient
+    .from('groups')
+    .select('criado_por')
+    .eq('id', groupId)
+    .single();
+
+  if (!grupo || grupo.criado_por !== usuario.id) {
+    alert('Só quem criou o grupo pode excluí-lo.');
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from('groups')
+    .delete()
+    .eq('id', groupId);
+
+  if (error) {
+    alert('Erro ao excluir grupo.');
+    return;
+  }
+
+  carregarGrupos();
+}
+
+async function editarNomeGrupo(groupId, nomeAtual) {
+  const novoNome = prompt('Novo nome do grupo:', nomeAtual);
+  if (!novoNome || !novoNome.trim() || novoNome.trim() === nomeAtual) return;
+
+  const { error } = await supabaseClient
+    .from('groups')
+    .update({ nome: novoNome.trim() })
+    .eq('id', groupId)
+    .eq('criado_por', usuario.id); // garante que só o criador edita, mesmo se alguém tentar chamar isso na mão
+
+  if (error) {
+    alert('Erro ao renomear grupo.');
+    return;
+  }
+
+  carregarGrupos();
+}
+
+async function excluirSessao(sessionId, groupId) {
+  if (!confirm('Isso vai excluir a sessão, os filmes sugeridos e os votos dela PARA SEMPRE. Confirma?')) return;
+
+  const { data: sessao } = await supabaseClient
+    .from('sessions')
+    .select('criado_por')
+    .eq('id', sessionId)
+    .single();
+
+  if (!sessao || sessao.criado_por !== usuario.id) {
+    alert('Só quem criou a sessão pode excluí-la.');
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from('sessions')
+    .delete()
+    .eq('id', sessionId);
+
+  if (error) {
+    alert('Erro ao excluir sessão.');
+    return;
+  }
+
+  carregarSessoesDoGrupo(groupId);
+  carregarHistoricoDoGrupo(groupId);
+}
+
+async function editarTituloSessao(sessionId, groupId, tituloAtual) {
+  const novoTitulo = prompt('Novo título da sessão:', tituloAtual);
+  if (!novoTitulo || !novoTitulo.trim() || novoTitulo.trim() === tituloAtual) return;
+
+  const { error } = await supabaseClient
+    .from('sessions')
+    .update({ titulo: novoTitulo.trim() })
+    .eq('id', sessionId)
+    .eq('criado_por', usuario.id);
+
+  if (error) {
+    alert('Erro ao renomear sessão.');
+    return;
+  }
+
+  carregarSessoesDoGrupo(groupId);
+}
+
+function alternarGrupo(groupId) {
+  const corpo = document.getElementById(`corpo-${groupId}`);
+  const toggleBtn = document.getElementById(`toggle-${groupId}`);
+  const agoraColapsado = corpo.classList.toggle('colapsado');
+  toggleBtn.textContent = agoraColapsado ? '▶' : '▼';
+  localStorage.setItem(`grupo-colapsado-${groupId}`, agoraColapsado ? '1' : '0');
+}
+
+async function comprimirImagem(arquivo, tamanhoMax = 300, qualidade = 0.7) {
+  const bitmap = await createImageBitmap(arquivo);
+
+  // Calcula o novo tamanho mantendo a proporção, sem passar de tamanhoMax
+  let { width, height } = bitmap;
+  if (width > height && width > tamanhoMax) {
+    height = Math.round(height * (tamanhoMax / width));
+    width = tamanhoMax;
+  } else if (height > tamanhoMax) {
+    width = Math.round(width * (tamanhoMax / height));
+    height = tamanhoMax;
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(bitmap, 0, 0, width, height);
+
+  return new Promise(resolve => {
+    canvas.toBlob(blob => resolve(blob), 'image/jpeg', qualidade);
+  });
+}
+
+async function trocarIconeGrupo(groupId, inputFile) {
+  const arquivo = inputFile.files[0];
+  if (!arquivo) return;
+
+  if (!arquivo.type.startsWith('image/')) {
+    alert('Selecione um arquivo de imagem.');
+    return;
+  }
+
+  if (arquivo.size > 10 * 1024 * 1024) {
+    alert('Imagem muito grande (máx 10MB antes de comprimir).');
+    return;
+  }
+
+  const { data: grupo } = await supabaseClient
+    .from('groups')
+    .select('criado_por')
+    .eq('id', groupId)
+    .single();
+
+  if (!grupo || grupo.criado_por !== usuario.id) {
+    alert('Só quem criou o grupo pode trocar o ícone.');
+    return;
+  }
+
+  const imagemComprimida = await comprimirImagem(arquivo, 300, 0.7);
+
+  // Sempre .jpg porque a compressão converte tudo pra JPEG
+  const caminho = `group-${groupId}.jpg`;
+
+  const { error: erroUpload } = await supabaseClient
+    .storage
+    .from('avatars')
+    .upload(caminho, imagemComprimida, { upsert: true, contentType: 'image/jpeg' });
+
+  if (erroUpload) {
+    alert('Erro ao enviar o ícone.');
+    return;
+  }
+
+  const { data: urlData } = supabaseClient
+    .storage
+    .from('avatars')
+    .getPublicUrl(caminho);
+
+  const iconeUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+
+  const { error: erroUpdate } = await supabaseClient
+    .from('groups')
+    .update({ icone_url: iconeUrl })
+    .eq('id', groupId)
+    .eq('criado_por', usuario.id);
+
+  if (erroUpdate) {
+    alert('Ícone enviado, mas erro ao salvar no grupo.');
+    return;
+  }
+
+  carregarGrupos();
 }
 
 carregarGrupos();

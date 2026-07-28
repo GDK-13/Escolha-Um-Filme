@@ -4,6 +4,8 @@ if (!usuario) window.location.href = 'index.html';
 const params = new URLSearchParams(window.location.search);
 const sessionId = params.get('id');
 
+let sessaoAtual = null;
+
 async function carregarSessao() {
   const { data: sessao } = await supabaseClient
     .from('sessions')
@@ -11,13 +13,86 @@ async function carregarSessao() {
     .eq('id', sessionId)
     .single();
 
+  sessaoAtual = sessao;
+
   document.getElementById('sessao-titulo').textContent =
     `🎬 ${sessao.titulo} (${sessao.status})`;
+
+  const detalhes = [
+    sessao.data_sessao ? new Date(sessao.data_sessao + 'T00:00:00').toLocaleDateString('pt-BR') : null,
+    sessao.horario || null,
+    sessao.local || null
+  ].filter(Boolean).join(' · ');
+  document.getElementById('sessao-detalhes').textContent = detalhes;
 
   document.getElementById('btn-fechar').style.display =
     sessao.status === 'fechada' ? 'none' : 'inline-block';
 
+  document.getElementById('card-dono-sessao').style.display =
+    sessao.criado_por === usuario.id ? 'block' : 'none';
+
   carregarFilmes(sessao.status);
+}
+
+async function editarDetalhesSessaoAtual() {
+  if (!sessaoAtual) return;
+
+  const novaData = prompt('Data (AAAA-MM-DD, vazio para remover):', sessaoAtual.data_sessao || '');
+  if (novaData === null) return;
+  const novoHorario = prompt('Horário (HH:MM, vazio para remover):', sessaoAtual.horario || '');
+  if (novoHorario === null) return;
+  const novoLocal = prompt('Local (vazio para remover):', sessaoAtual.local || '');
+  if (novoLocal === null) return;
+
+  const { error } = await supabaseClient
+    .from('sessions')
+    .update({
+      data_sessao: novaData.trim() || null,
+      horario: novoHorario.trim() || null,
+      local: novoLocal.trim() || null
+    })
+    .eq('id', sessionId)
+    .eq('criado_por', usuario.id);
+
+  if (error) { alert('Erro ao atualizar detalhes da sessão.'); return; }
+  carregarSessao();
+}
+
+async function editarTituloSessaoAtual() {
+  if (!sessaoAtual) return;
+  const novoTitulo = prompt('Novo título da sessão:', sessaoAtual.titulo);
+  if (!novoTitulo || !novoTitulo.trim() || novoTitulo.trim() === sessaoAtual.titulo) return;
+
+  const { error } = await supabaseClient
+    .from('sessions')
+    .update({ titulo: novoTitulo.trim() })
+    .eq('id', sessionId)
+    .eq('criado_por', usuario.id);
+
+  if (error) {
+    alert('Erro ao renomear sessão.');
+    return;
+  }
+
+  carregarSessao();
+}
+
+async function excluirSessaoAtual() {
+  if (!sessaoAtual) return;
+  if (!confirm('Isso vai excluir a sessão, os filmes sugeridos e os votos dela PARA SEMPRE. Confirma?')) return;
+
+  const { error } = await supabaseClient
+    .from('sessions')
+    .delete()
+    .eq('id', sessionId)
+    .eq('criado_por', usuario.id);
+
+  if (error) {
+    alert('Erro ao excluir sessão.');
+    return;
+  }
+
+  window.location.href = `grupos.html`;
 }
 
 async function carregarFilmes(statusSessao) {
@@ -37,18 +112,37 @@ async function carregarFilmes(statusSessao) {
     contagem[v.movie_id] = (contagem[v.movie_id] || 0) + 1;
   });
 
-  let vencedor = null;
+  // Descobre o(s) vencedor(es) — pode dar empate entre vários filmes
+  let vencedoresIds = new Set();
   if (statusSessao === 'fechada' && filmes.length > 0) {
-    vencedor = filmes.reduce((a, b) =>
-      (contagem[a.id] || 0) >= (contagem[b.id] || 0) ? a : b
-    );
+    const maxVotos = Math.max(...filmes.map(f => contagem[f.id] || 0));
+    if (maxVotos > 0) {
+      filmes.filter(f => (contagem[f.id] || 0) === maxVotos).forEach(f => vencedoresIds.add(f.id));
+    }
+  }
+
+  const avisoEl = document.getElementById('aviso-empate');
+  if (avisoEl) {
+    avisoEl.style.display = vencedoresIds.size > 1 ? 'block' : 'none';
   }
 
   const container = document.getElementById('lista-filmes');
+
+  if (filmes.length === 0) {
+    container.innerHTML = '<p><em>Nenhum filme sugerido ainda.</em></p>';
+    return;
+  }
+
   container.innerHTML = filmes.map(filme => {
     const votosDoFilme = contagem[filme.id] || 0;
-    const jaVotei = meuVoto && meuVoto.movie_id === filme.id;
-    const ehVencedor = vencedor && vencedor.id === filme.id;
+    const jaVoteiAqui = meuVoto && meuVoto.movie_id === filme.id;
+    const ehVencedor = vencedoresIds.has(filme.id);
+    const possoEditar = statusSessao === 'aberta' &&
+      (filme.sugerido_por === usuario.id || (sessaoAtual && sessaoAtual.criado_por === usuario.id));
+
+    let textoBotaoVoto = 'Votar';
+    if (jaVoteiAqui) textoBotaoVoto = 'Seu voto atual';
+    else if (meuVoto) textoBotaoVoto = 'Trocar voto pra cá';
 
     return `
         <div class="card filme ${ehVencedor ? 'vencedor' : ''}">
@@ -56,13 +150,49 @@ async function carregarFilmes(statusSessao) {
             <h3>${filme.titulo} ${ehVencedor ? '🏆' : ''}</h3>
             <p>${votosDoFilme} voto(s)</p>
             ${statusSessao === 'aberta' ? `
-            <button ${jaVotei ? 'disabled' : ''} onclick="votar('${filme.id}')">
-                ${jaVotei ? 'Você votou aqui' : 'Votar'}
+            <button ${jaVoteiAqui ? 'disabled' : ''} onclick="votar('${filme.id}')">
+                ${textoBotaoVoto}
             </button>
+            ` : ''}
+            ${possoEditar ? `
+            <button onclick="editarFilme('${filme.id}', '${filme.titulo.replace(/'/g, "\\'")}')">✏️</button>
+            <button class="btn-perigo" onclick="removerFilme('${filme.id}')">🗑️</button>
             ` : ''}
         </div>
     `;
   }).join('');
+}
+
+async function editarFilme(movieId, tituloAtual) {
+  const novoTitulo = prompt('Novo título do filme:', tituloAtual);
+  if (!novoTitulo || !novoTitulo.trim() || novoTitulo.trim() === tituloAtual) return;
+
+  const { data: existentes } = await supabaseClient
+    .from('movies').select('id, titulo').eq('session_id', sessionId);
+  const jaExiste = (existentes || []).some(
+    m => m.id !== movieId && m.titulo.toLowerCase() === novoTitulo.trim().toLowerCase()
+  );
+  if (jaExiste) { alert('Já existe um filme com esse título nessa sessão.'); return; }
+
+  const { error } = await supabaseClient
+    .from('movies')
+    .update({ titulo: novoTitulo.trim() })
+    .eq('id', movieId);
+
+  if (error) { alert('Erro ao editar filme.'); return; }
+  carregarSessao();
+}
+
+async function removerFilme(movieId) {
+  if (!confirm('Remover esse filme sugerido? Os votos nele também serão apagados.')) return;
+
+  const { error } = await supabaseClient
+    .from('movies')
+    .delete()
+    .eq('id', movieId);
+
+  if (error) { alert('Erro ao remover filme.'); return; }
+  carregarSessao();
 }
 
 async function sugerirFilme() {
@@ -92,20 +222,56 @@ async function sugerirFilme() {
 
 
 async function votar(movieId) {
-  const { error } = await supabaseClient.from('votes').insert([
-    { session_id: sessionId, movie_id: movieId, user_id: usuario.id }
-  ]);
+  // Verifica se já existe voto meu nessa sessão
+  const { data: votoExistente } = await supabaseClient
+    .from('votes')
+    .select('id, movie_id')
+    .eq('session_id', sessionId)
+    .eq('user_id', usuario.id)
+    .maybeSingle();
 
-  if (error) {
-    alert('Você já votou nessa sessão.');
-    return;
+  if (votoExistente) {
+    if (votoExistente.movie_id === movieId) return; // já é o voto atual
+
+    const { error } = await supabaseClient
+      .from('votes')
+      .update({ movie_id: movieId })
+      .eq('id', votoExistente.id);
+
+    if (error) { alert('Erro ao trocar voto.'); return; }
+  } else {
+    const { error } = await supabaseClient.from('votes').insert([
+      { session_id: sessionId, movie_id: movieId, user_id: usuario.id }
+    ]);
+
+    if (error) { alert('Erro ao votar.'); return; }
   }
 
   carregarSessao();
 }
 
 async function fecharSessao() {
-  if (!confirm('Fechar a votação e revelar o vencedor?')) return;
+  const { data: filmes } = await supabaseClient
+    .from('movies').select('id').eq('session_id', sessionId);
+
+  if (!filmes || filmes.length === 0) {
+    if (!confirm('Essa sessão ainda não tem nenhum filme sugerido. Fechar mesmo assim (sem vencedor)?')) return;
+  } else {
+    const { data: votos } = await supabaseClient
+      .from('votes').select('user_id').eq('session_id', sessionId);
+    const votantes = new Set((votos || []).map(v => v.user_id)).size;
+
+    const { data: membros } = await supabaseClient
+      .from('group_members').select('user_id').eq('group_id', sessaoAtual.group_id);
+    const totalMembros = (membros || []).length;
+
+    if (votantes < totalMembros) {
+      const faltam = totalMembros - votantes;
+      if (!confirm(`Ainda faltam ${faltam} pessoa(s) do grupo votar. Fechar a votação mesmo assim?`)) return;
+    } else {
+      if (!confirm('Fechar a votação e revelar o vencedor?')) return;
+    }
+  }
 
   await supabaseClient
     .from('sessions')

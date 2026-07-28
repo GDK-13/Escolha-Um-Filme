@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Meu Perfil</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="topo">
+      <h1>Meu Perfil</h1>
+      <div>
+        <a href="grupos.html">← Grupos</a>
+        <button onclick="logout()">Sair</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 id="perfil-nome">Carregando...</h2>
+
+      <img id="perfil-foto" class="perfil-foto" alt="Foto de perfil">
+      <input type="file" id="input-foto" accept="image/*" onchange="trocarFoto(this)">
+
+      <textarea id="perfil-bio" placeholder="Fale um pouco sobre você..." maxlength="200"></textarea>
+      <button onclick="salvarBio()">Salvar bio</button>
+
+      <p id="perfil-erro" class="erro"></p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/perfil.js"></script>
+</body>
+</html>

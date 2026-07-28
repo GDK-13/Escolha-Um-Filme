@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Meus Amigos</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="topo">
+      <h1>Meus Amigos</h1>
+      <div>
+        <a href="grupos.html">← Grupos</a>
+        <button onclick="logout()">Sair</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Adicionar amigo</h2>
+      <input type="text" id="input-novo-amigo" placeholder="Nome de usuário">
+      <button onclick="adicionarAmigo(document.getElementById('input-novo-amigo').value)">Adicionar</button>
+      <p class="erro" id="amigo-erro"></p>
+    </div>
+
+    <div id="lista-amigos">Carregando...</div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/amigos.js"></script>
+</body>
+</html>

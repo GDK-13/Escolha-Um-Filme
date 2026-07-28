@@ -1,102 +1,343 @@
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito:wght@400;600;700&display=swap');
+
+:root {
+  --font-display: 'Comfortaa', sans-serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+
+  /* ---- tema escuro (padrão): aqua profundo, água/vidro noturno ---- */
+  --bg-1: #0a2436;
+  --bg-2: #114a5c;
+  --bg-3: #1f7a86;
+  --glass: rgba(255, 255, 255, 0.08);
+  --glass-strong: rgba(255, 255, 255, 0.14);
+  --glass-border: rgba(255, 255, 255, 0.28);
+  --texto: #eaf9fb;
+  --texto-suave: #b9dde3;
+  --accent: #57e0e8;
+  --accent-2: #8be05a;
+  --erro: #ff8a8a;
+  --sucesso: #8be05a;
+  --sombra: rgba(0, 20, 30, 0.45);
+}
+
+[data-theme="claro"] {
+  /* ---- tema claro: céu, espuma, folhagem ---- */
+  --bg-1: #bfeefc;
+  --bg-2: #dff6ea;
+  --bg-3: #eafffb;
+  --glass: rgba(255, 255, 255, 0.55);
+  --glass-strong: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.9);
+  --texto: #0b3446;
+  --texto-suave: #3d6472;
+  --accent: #10a1c4;
+  --accent-2: #2fae62;
+  --erro: #d1444a;
+  --sucesso: #2fae62;
+  --sombra: rgba(20, 90, 110, 0.18);
+}
+
 * { box-sizing: border-box; }
 
 body {
-  font-family: system-ui, sans-serif;
-  background: #141414;
-  color: #f5f5f5;
+  font-family: var(--font-body);
+  color: var(--texto);
   margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 900px 500px at 15% -10%, var(--bg-3) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 500px at 110% 10%, var(--bg-3) 0%, transparent 55%),
+    linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+  background-attachment: fixed;
+  transition: background 0.4s ease, color 0.4s ease;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* bolhas ambientes flutuando — assinatura Frutiger Aero */
+body::before, body::after {
+  content: "";
+  position: fixed;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.55), rgba(255,255,255,0) 70%);
+  opacity: 0.5;
+  pointer-events: none;
+  animation: flutuar 16s ease-in-out infinite;
+  z-index: 0;
+}
+body::before { width: 220px; height: 220px; top: 8%; left: -60px; animation-delay: 0s; }
+body::after { width: 160px; height: 160px; bottom: 6%; right: -40px; animation-delay: -8s; }
+
+@keyframes flutuar {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(-26px) translateX(14px); }
 }
 
 .container {
-  max-width: 700px;
+  max-width: 760px;
   margin: 0 auto;
-  padding: 24px 16px;
+  padding: 28px 16px 60px;
+  position: relative;
+  z-index: 1;
 }
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+h1 { font-size: 1.5em; margin: 0; }
+
+a { color: var(--accent); }
+
+/* ---------------- cabeçalho / topo ---------------- */
 
 .topo {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  gap: 12px;
+  margin-bottom: 22px;
+  padding: 14px 18px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 24px var(--sombra), inset 0 1px 0 rgba(255,255,255,0.35);
 }
 
-.card {
-  background: #1f1f1f;
-  border-radius: 10px;
-  padding: 16px;
-  margin-bottom: 16px;
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  margin: 6px 0;
-  border-radius: 6px;
-  border: 1px solid #333;
-  background: #101010;
-  color: #fff;
-}
-
-button {
-  background: #e50914;
-  color: #fff;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-top: 6px;
-}
-
-button:disabled {
-  background: #555;
-  cursor: not-allowed;
+.topo > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .nav-principal {
   display: flex;
-  gap: 14px;
-  margin: 0 12px;
+  gap: 10px;
+  margin: 0;
+  flex-wrap: wrap;
 }
 
 .nav-principal a {
-  color: #f5f5f5;
+  color: var(--texto);
   text-decoration: none;
-  font-size: 0.95em;
-  opacity: 0.85;
+  font-size: 0.9em;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  transition: transform 0.15s ease, background 0.2s ease;
   white-space: nowrap;
 }
 
 .nav-principal a:hover {
-  opacity: 1;
-  text-decoration: underline;
+  transform: translateY(-2px);
+  background: var(--glass-strong);
 }
 
-.erro { color: #ff6b6b; font-size: 0.9em; }
-
-.sessao-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 0;
-  border-bottom: 1px solid #333;
+/* botão de alternar tema */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: var(--texto);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.85em;
+  cursor: pointer;
+  margin-top: 0;
 }
 
-.status.aberta { color: #4caf50; }
-.status.fechada { color: #999; }
+/* ---------------- cartões de vidro ---------------- */
 
-.filme.vencedor {   
-  border: 2px solid gold;
+.card {
+  position: relative;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 18px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 10px 30px var(--sombra), inset 0 1px 0 rgba(255,255,255,0.35);
+  overflow: hidden;
+}
+
+/* faixa de brilho no topo do cartão — o "glossy sheen" clássico */
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 45%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0));
+  pointer-events: none;
+  border-radius: 20px 20px 50% 50% / 20px 20px 20px 20px;
+}
+
+.card h2, .card h3 { margin-top: 0; }
+
+/* ---------------- formulários ---------------- */
+
+input, textarea {
+  width: 100%;
+  padding: 12px 14px;
+  margin: 6px 0;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-strong);
+  color: var(--texto);
+  font-family: var(--font-body);
+  font-size: 1em;
+  outline: none;
+  transition: box-shadow 0.2s ease;
+}
+
+input::placeholder, textarea::placeholder { color: var(--texto-suave); }
+
+input:focus, textarea:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+textarea { resize: vertical; min-height: 70px; }
+
+button {
+  position: relative;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 88%, white), var(--accent));
+  color: #04303a;
+  border: 1px solid color-mix(in srgb, var(--accent) 60%, black 10%);
+  padding: 11px 18px;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 40%, transparent), inset 0 1px 0 rgba(255,255,255,0.6);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+button:hover { transform: translateY(-1px); }
+button:active { transform: translateY(0); }
+
+button:disabled {
+  background: #7d8b8d;
+  border-color: #6b7779;
+  color: #e7e7e7;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
 .btn-perigo {
-  background: #444;
-  border: 1px solid #e50914;
+  background: linear-gradient(180deg, #ff9d8a, var(--erro));
+  border-color: color-mix(in srgb, var(--erro) 70%, black 10%);
+  color: #3a0d0d;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--erro) 35%, transparent), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+.erro { color: var(--erro); font-size: 0.9em; font-weight: 600; }
+.sucesso { color: var(--sucesso) !important; }
+
+/* ---------------- login / cadastro em abas ---------------- */
+
+.abas {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  padding: 5px;
+}
+
+.aba-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: var(--texto-suave);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95em;
+  padding: 10px 12px;
+  border-radius: 999px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.aba-btn.ativa {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 88%, white), var(--accent));
+  color: #04303a;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+.aba-conteudo { display: none; }
+.aba-conteudo.ativa { display: block; }
+
+.intro {
+  text-align: center;
+  color: var(--texto-suave);
+  margin-bottom: 22px;
+}
+
+/* ---------------- listas e itens específicos ---------------- */
+
+.sessao-item, .historico-item, .amigo-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--glass-border);
+}
+.sessao-item:last-child, .historico-item:last-child, .amigo-item:last-child {
+  border-bottom: none;
+}
+
+.status {
+  font-weight: 700;
+  font-size: 0.85em;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.status.aberta { color: #0a3d1d; background: color-mix(in srgb, var(--sucesso) 55%, white); }
+.status.fechada { color: var(--texto-suave); background: var(--glass-strong); }
+
+.filme.vencedor {
+  border: 2px solid gold;
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.25), 0 10px 30px var(--sombra);
+}
+
+.convidar, .nova-sessao {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--glass-border);
+}
+
+details {
+  margin-top: 12px;
+}
+details summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--texto-suave);
 }
 
 .poster {
   width: 100%;
   max-width: 150px;
-  border-radius: 6px;
+  border-radius: 12px;
   margin-bottom: 8px;
+  box-shadow: 0 6px 16px var(--sombra);
 }
 
 .perfil-foto {
@@ -106,4 +347,12 @@ button:disabled {
   object-fit: cover;
   display: block;
   margin: 10px 0;
+  border: 3px solid var(--glass-border);
+  box-shadow: 0 6px 18px var(--sombra);
+}
+
+/* responsivo */
+@media (max-width: 480px) {
+  .topo { flex-direction: column; align-items: stretch; }
+  .topo > div { justify-content: center; }
 }

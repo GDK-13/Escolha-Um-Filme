@@ -2,18 +2,21 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Meus Grupos</title>
   <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
 </head>
 <body>
   <div class="container">
-    <div class="topo">
+        <div class="topo">
         <h1>🎬 Meus Grupos</h1>
         <nav class="nav-principal">
             <a href="perfil.html">Perfil</a>
             <a href="amigos.html">Amigos</a>
         </nav>
         <div>
+            <button class="theme-toggle" id="btn-tema" onclick="alternarTema()">☀️ Claro</button>
             <button onclick="limparDados()" class="btn-perigo">🧹 Limpar dados de teste</button>
             <button onclick="logout()">Sair</button>
         </div>

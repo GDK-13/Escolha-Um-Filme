@@ -2,20 +2,23 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Meu Perfil</title>
   <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
 </head>
 <body>
   <div class="container">
     <div class="topo">
-    <h1>Meu Perfil</h1>
-        <nav class="nav-principal">
-            <a href="grupos.html">← Grupos</a>
-            <a href="amigos.html"> Amigos</a>
-        </nav>
-        <div>
-            <button onclick="logout()">Sair</button>
-        </div>
+      <h1>Meu Perfil</h1>
+      <nav class="nav-principal">
+        <a href="grupos.html">← Grupos</a>
+        <a href="amigos.html">Amigos</a>
+      </nav>
+      <div>
+        <button class="theme-toggle" id="btn-tema" onclick="alternarTema()">☀️ Claro</button>
+        <button onclick="logout()">Sair</button>
+      </div>
     </div>
 
     <div class="card">

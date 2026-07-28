@@ -2,32 +2,53 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Escolha Um Filme - Login</title>
   <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
 </head>
 <body>
   <div class="container">
-    <h1>🎬 Escolha Um Filme</h1>
-
-    <div class="card">
-      <h2>Entrar</h2>
-      <input type="text" id="login-nome" placeholder="Seu nome">
-      <input type="password" id="login-senha" placeholder="Senha">
-      <button onclick="fazerLogin()">Entrar</button>
-      <p id="login-erro" class="erro"></p>
+    <div class="topo">
+      <h1>🎬 Escolha Um Filme</h1>
+      <button class="theme-toggle" id="btn-tema" onclick="alternarTema()">☀️ Claro</button>
     </div>
 
+    <p class="intro">Combine com a galera e decidam junto qual filme assistir.</p>
+
     <div class="card">
-      <h2>Criar conta</h2>
-      <input type="text" id="cad-nome" placeholder="Seu nome">
-      <input type="password" id="cad-senha" placeholder="Crie uma senha">
-      <button onclick="criarConta()">Cadastrar</button>
-      <p id="cad-erro" class="erro"></p>
+      <div class="abas">
+        <button class="aba-btn ativa" id="aba-btn-entrar" onclick="mostrarAba('entrar')">Entrar</button>
+        <button class="aba-btn" id="aba-btn-criar" onclick="mostrarAba('criar')">Criar conta</button>
+      </div>
+
+      <div class="aba-conteudo ativa" id="aba-entrar">
+        <input type="text" id="login-nome" placeholder="Seu nome">
+        <input type="password" id="login-senha" placeholder="Senha">
+        <button onclick="fazerLogin()">Entrar</button>
+        <p id="login-erro" class="erro"></p>
+      </div>
+
+      <div class="aba-conteudo" id="aba-criar">
+        <input type="text" id="cad-nome" placeholder="Seu nome">
+        <input type="password" id="cad-senha" placeholder="Crie uma senha">
+        <button onclick="criarConta()">Cadastrar</button>
+        <p id="cad-erro" class="erro"></p>
+      </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
   <script src="js/auth.js"></script>
+  <script>
+    function mostrarAba(nome) {
+      const entrarAtiva = nome === 'entrar';
+      document.getElementById('aba-entrar').classList.toggle('ativa', entrarAtiva);
+      document.getElementById('aba-criar').classList.toggle('ativa', !entrarAtiva);
+      document.getElementById('aba-btn-entrar').classList.toggle('ativa', entrarAtiva);
+      document.getElementById('aba-btn-criar').classList.toggle('ativa', !entrarAtiva);
+    }
+  </script>
 </body>
 </html>

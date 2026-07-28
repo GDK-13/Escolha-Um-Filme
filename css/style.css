@@ -64,6 +64,18 @@ button:disabled {
 .status.aberta { color: #4caf50; }
 .status.fechada { color: #999; }
 
-.filme.vencedor {
+.filme.vencedor {   
   border: 2px solid gold;
+}
+
+.btn-perigo {
+  background: #444;
+  border: 1px solid #e50914;
+}
+
+.poster {
+  width: 100%;
+  max-width: 150px;
+  border-radius: 6px;
+  margin-bottom: 8px;
 }

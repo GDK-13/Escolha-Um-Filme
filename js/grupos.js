@@ -38,10 +38,15 @@ async function carregarGrupos() {
             <input type="text" placeholder="Título da sessão (ex: Noite 02/08)" id="titulo-${grupo.id}">
             <button onclick="criarSessao('${grupo.id}')">Nova sessão</button>
         </div>
+        <details>
+            <summary>📜 Histórico de vencedores</summary>
+            <div id="historico-${grupo.id}">Carregando...</div>
+        </details>
         `;
     container.appendChild(div);
     carregarMembrosDoGrupo(grupo.id);
     carregarSessoesDoGrupo(grupo.id);
+    carregarHistoricoDoGrupo(grupo.id);
   }
 }
 
@@ -150,6 +155,69 @@ async function convidarMembro(groupId) {
 
   input.value = '';
   carregarMembrosDoGrupo(groupId);
+}
+
+async function limparDados() {
+  const confirmacao = confirm(
+    'Isso vai apagar TODOS os grupos, sessões, filmes e votos (de todos os usuários). Os usuários e senhas continuam intactos. Confirma?'
+  );
+  if (!confirmacao) return;
+
+  // Apaga na ordem certa por causa das foreign keys
+  await supabaseClient.from('votes').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  await supabaseClient.from('movies').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  await supabaseClient.from('sessions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  await supabaseClient.from('group_members').delete().neq('group_id', '00000000-0000-0000-0000-000000000000');
+  await supabaseClient.from('groups').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+
+  alert('Dados de teste limpos! Usuários mantidos.');
+  carregarGrupos();
+}
+
+async function carregarHistoricoDoGrupo(groupId) {
+  const { data: sessoesFechadas } = await supabaseClient
+    .from('sessions')
+    .select('id, titulo, data_sessao')
+    .eq('group_id', groupId)
+    .eq('status', 'fechada')
+    .order('created_at', { ascending: false });
+
+  const el = document.getElementById(`historico-${groupId}`);
+  if (!sessoesFechadas || sessoesFechadas.length === 0) {
+    el.innerHTML = '<p><em>Nenhuma sessão fechada ainda.</em></p>';
+    return;
+  }
+
+  const linhas = [];
+  for (const sessao of sessoesFechadas) {
+    const { data: filmes } = await supabaseClient
+      .from('movies')
+      .select('id, titulo')
+      .eq('session_id', sessao.id);
+
+    const { data: votos } = await supabaseClient
+      .from('votes')
+      .select('movie_id')
+      .eq('session_id', sessao.id);
+
+    const contagem = {};
+    (votos || []).forEach(v => { contagem[v.movie_id] = (contagem[v.movie_id] || 0) + 1; });
+
+    let vencedor = null;
+    if (filmes && filmes.length > 0) {
+      vencedor = filmes.reduce((a, b) => (contagem[a.id] || 0) >= (contagem[b.id] || 0) ? a : b);
+    }
+
+    linhas.push(`
+      <div class="historico-item">
+        <strong>${sessao.titulo}</strong> —
+        🏆 ${vencedor ? vencedor.titulo : 'sem filmes'}
+        (${contagem[vencedor?.id] || 0} votos)
+      </div>
+    `);
+  }
+
+  el.innerHTML = linhas.join('');
 }
 
 carregarGrupos();

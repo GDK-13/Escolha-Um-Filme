@@ -759,6 +759,26 @@ details summary {
   margin: 4px 0 12px;
 }
 
+.acoes-visitante {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.perfil-bio-leitura {
+  text-align: center;
+  font-style: italic;
+  margin: 10px 0;
+}
+
+.lista-conquistas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .tags-perfil {
   display: flex;
   flex-wrap: wrap;
@@ -935,7 +955,8 @@ details summary {
 }
 
 .top-filmes-lista li:first-child::before {
-  content: "🏆 " counter(top-filmes) "º ";
+  content: counter(top-filmes) "º ";
+  color: gold;
 }
 
 /* ---- Player de música flutuante ---- */
@@ -965,6 +986,10 @@ details summary {
   margin: 15px 0;
   overflow: hidden; /* Corta o texto que sai da caixa */
   white-space: nowrap; /* Impede a quebra de linha */
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  contain: layout paint;
 }
 [data-theme="claro"] .marquise {
   background-color: #FFFFCC;

@@ -52,7 +52,9 @@ async function adicionarAmigo(nomeAmigo) {
   carregarAmigos();
 }
 
-async function removerAmizade(amigoId) {
+async function removerAmizade(amigoId, nomeAmigo) {
+  if (!confirm(`Desfazer amizade com ${nomeAmigo}?`)) return;
+
   // Apaga a linha, seja qual for o sentido em que ela foi criada
   await supabaseClient
     .from('friendships')
@@ -91,8 +93,8 @@ async function carregarAmigos() {
 
   lista.innerHTML = unicos.map(u => `
     <div class="amigo-item">
-      <span>${u.nome}</span>
-      <button onclick="removerAmizade('${u.id}')">Desfazer amizade</button>
+      <span><a href="perfil.html?id=${u.id}">${u.nome}</a></span>
+      <button class="btn-perigo" onclick="removerAmizade('${u.id}', '${u.nome.replace(/'/g, "\\'")}')">Desfazer amizade</button>
     </div>
   `).join('');
 }

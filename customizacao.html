@@ -11,30 +11,30 @@
 <body>
   <div class="container">
     <div class="topo">
-      <h1>🎨 Personalizar</h1>
+      <h1>Personalizar</h1>
       <nav class="nav-principal">
         <a href="grupos.html">← Grupos</a>
         <a href="perfil.html">Perfil</a>
         <a href="amigos.html">Amigos</a>
       </nav>
       <div>
-        <button class="theme-toggle" id="btn-tema" onclick="alternarTema()">☀️ Claro</button>
-        <button id="btn-densidade" onclick="alternarDensidade()">📏 Compacto</button>
+        <button class="theme-toggle" id="btn-tema" onclick="alternarTema()">Claro</button>
+        <button id="btn-densidade" onclick="alternarDensidade()">Compacto</button>
         <button onclick="logout()">Sair</button>
       </div>
     </div>
 
-    <p class="intro">Deixe seu perfil (e o site inteiro, se quiser) do seu jeitinho. 💾✨</p>
+    <p class="intro">Deixe seu perfil (e o site inteiro, se quiser) do seu jeitinho.</p>
 
     <div class="card">
-      <h2>😎 Humor / status atual</h2>
-      <input type="text" id="input-humor" placeholder="Ex: 😴 offline, 🎧 ouvindo trilha sonora...">
+      <h2>Humor / status atual</h2>
+      <input type="text" id="input-humor" placeholder="Ex: offline, ouvindo trilha sonora...">
       <button onclick="salvarHumor()">Salvar humor</button>
       <p id="humor-erro" class="erro"></p>
     </div>
 
     <div class="card">
-      <h2>🏆 Top 5 filmes</h2>
+      <h2>Top 5 filmes</h2>
       <input type="text" id="top-filme-1" placeholder="1º filme">
       <input type="text" id="top-filme-2" placeholder="2º filme">
       <input type="text" id="top-filme-3" placeholder="3º filme">
@@ -45,18 +45,18 @@
     </div>
 
     <div class="card">
-      <h2>🖼️ Moldura do avatar</h2>
+      <h2>Moldura do avatar</h2>
       <select id="select-moldura" onchange="alternarCamposMolduraPersonalizada()">
         <option value="nenhuma">Nenhuma</option>
-        <option value="neon">✨ Neon</option>
-        <option value="estrelas">⭐ Estrelas (tracejado dourado)</option>
-        <option value="gradiente">🌈 Gradiente</option>
-        <option value="fogo">🔥 Fogo</option>
-        <option value="gelo">❄️ Gelo</option>
-        <option value="arcoiris">🏳️‍🌈 Arco-íris</option>
-        <option value="ouro">🏆 Ouro</option>
-        <option value="pixel">🕹️ Pixel (8-bit)</option>
-        <option value="personalizada">🎨 Personalizada...</option>
+        <option value="neon">Neon</option>
+        <option value="estrelas">Estrelas (tracejado dourado)</option>
+        <option value="gradiente">Gradiente</option>
+        <option value="fogo">Fogo</option>
+        <option value="gelo">Gelo</option>
+        <option value="arcoiris">Arco-íris</option>
+        <option value="ouro">Ouro</option>
+        <option value="pixel">Pixel (8-bit)</option>
+        <option value="personalizada">Personalizada...</option>
       </select>
 
       <div id="campos-moldura-personalizada" style="display:none; margin-top:10px;">
@@ -77,15 +77,15 @@
     </div>
 
     <div class="card">
-      <h2>🎵 Música de fundo do perfil</h2>
-      <p class="intro" style="margin:0 0 10px;">Cole um link do YouTube. Por causa das regras dos navegadores, ela não toca sozinha ao abrir a página — mas aparece um botão flutuante de play no seu perfil, é o mais perto de "autoplay" que dá pra fazer sem o navegador bloquear o som. 🔇➡️🔊</p>
+      <h2>Música de fundo do perfil</h2>
+      <p class="intro" style="margin:0 0 10px;">Cole um link do YouTube. Por causa das regras dos navegadores, ela não toca sozinha ao abrir a página, mas aparece um botão flutuante de play no seu perfil</p>
       <input type="text" id="input-musica" placeholder="https://www.youtube.com/watch?v=...">
       <button onclick="salvarMusica()">Salvar música</button>
       <p id="musica-erro" class="erro"></p>
     </div>
 
     <div class="card">
-      <h2>🔤 Fonte da interface</h2>
+      <h2>Fonte da interface</h2>
       <select id="select-fonte">
         <option value="padrao">Padrão (Arial)</option>
         <option value="comic">Comic Sans (bem anos 2000)</option>
@@ -97,7 +97,7 @@
     </div>
 
     <div class="card">
-      <h2>🎨 Cores do tema claro</h2>
+      <h2>Cores do tema claro</h2>
       <label for="cor-bg-claro">Cor de fundo</label>
       <input type="color" id="cor-bg-claro" class="campo-cor">
       <label for="cor-texto-claro">Cor do texto</label>
@@ -107,7 +107,7 @@
     </div>
 
     <div class="card">
-      <h2>🌙 Cores do tema escuro</h2>
+      <h2>Cores do tema escuro</h2>
       <label for="cor-bg-escuro">Cor de fundo</label>
       <input type="color" id="cor-bg-escuro" class="campo-cor">
       <label for="cor-texto-escuro">Cor do texto</label>
@@ -117,18 +117,18 @@
     </div>
 
     <div class="card">
-      <h2>🏞️ Plano de fundo do site inteiro</h2>
+      <h2>Plano de fundo do site inteiro</h2>
       <p class="intro" style="margin:0 0 10px;">Essa imagem aparece de fundo em todas as páginas, não só no seu perfil.</p>
       <input type="file" id="input-bg-site" accept="image/*" onchange="previsualizarBgSite(this)">
       <div class="preview-foto-area" id="preview-bg-area" style="display:none;">
         <p><em>Pré-visualização (ainda não salva):</em></p>
         <img id="preview-bg-site" style="max-width:100%;max-height:150px;">
         <div class="preview-foto-botoes">
-          <button onclick="confirmarBgSite()">✅ Confirmar</button>
-          <button class="btn-perigo" onclick="cancelarBgSite()">✖️ Cancelar</button>
+          <button onclick="confirmarBgSite()">Confirmar</button>
+          <button class="btn-perigo" onclick="cancelarBgSite()">Cancelar</button>
         </div>
       </div>
-      <button class="btn-perigo" onclick="removerBgSite()">🗑️ Remover plano de fundo</button>
+      <button class="btn-perigo" onclick="removerBgSite()">Remover plano de fundo</button>
       <p id="bg-site-erro" class="erro"></p>
     </div>
   </div>

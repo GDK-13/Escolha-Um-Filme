@@ -16,11 +16,14 @@
       <nav class="nav-principal">
         <a href="grupos.html">← Grupos</a>
         <a href="perfil.html">Perfil</a>
-        <a href="customizacao.html">Personalizar</a>
         <a href="amigos.html">Amigos</a>
+        <a href="customizacao.html">Personalizar</a>
       </nav>
-      <button class="theme-toggle" id="btn-tema" onclick="alternarTema()">☀️ Claro</button>
-        <button id="btn-densidade" onclick="alternarDensidade()">📏 Compacto</button>
+      <div>
+        <button class="theme-toggle" id="btn-tema" onclick="alternarTema()">Claro</button>
+        <button id="btn-densidade" onclick="alternarDensidade()">Compacto</button>
+        <button onclick="logout()">Sair</button>
+      </div>
     </div>
 
     <div class="card">
@@ -30,7 +33,7 @@
     </div>
 
     <div id="aviso-empate" class="card aviso-empate" style="display:none;">
-      🍿 Empate! Mais de um filme recebeu o mesmo número de votos — combinem entre vocês ou façam um desempate.
+      Empate! Mais de um filme recebeu o mesmo número de votos — combinem entre vocês ou façam um desempate.
     </div>
 
     <div id="lista-filmes"></div>
@@ -40,9 +43,9 @@
     </div>
 
     <div class="card" id="card-dono-sessao" style="display:none;">
-      <button onclick="editarTituloSessaoAtual()">✏️ Renomear sessão</button>
-      <button onclick="editarDetalhesSessaoAtual()">📅 Editar data/horário/local</button>
-      <button class="btn-perigo" onclick="excluirSessaoAtual()">🗑️ Excluir sessão</button>
+      <button onclick="editarTituloSessaoAtual()">Renomear sessão</button>
+      <button onclick="editarDetalhesSessaoAtual()">Editar data/horário/local</button>
+      <button class="btn-perigo" onclick="excluirSessaoAtual()">Excluir sessão</button>
     </div>
     
   </div>
@@ -54,10 +57,10 @@
       <p>Desenvolvido à base de lisdexanfetamina e muito tempo livre.</p>
     </div>
     <div class="blinkies-container">
-      <img src="https://y2k.neocities.org/blinkiez/newbatch/clgblinkie036.gif"">
-      <img src="https://y2k.neocities.org/blinkiez/754667r8n2u197zw.gif"">
-      <img src="https://y2k.neocities.org/blinkiez/1437980lbkrfqb4ze.gif"">
-      <img src="https://y2k.neocities.org/blinkiez/1564181t14241bxnn.gif"">
+      <img src="https://y2k.neocities.org/blinkiez/newbatch/clgblinkie036.gif">
+      <img src="https://y2k.neocities.org/blinkiez/754667r8n2u197zw.gif">
+      <img src="https://y2k.neocities.org/blinkiez/1437980lbkrfqb4ze.gif">
+      <img src="https://y2k.neocities.org/blinkiez/1564181t14241bxnn.gif">
     </div>
   </footer>
 

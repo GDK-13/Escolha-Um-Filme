@@ -1,19 +1,84 @@
 const usuario = getUsuarioLogado();
 if (!usuario) window.location.href = 'index.html';
 
+const paramsUrl = new URLSearchParams(window.location.search);
+const perfilId = paramsUrl.get('id') || usuario.id;
+const modoVisitante = perfilId !== usuario.id;
+
+function aplicarModoVisualizacao() {
+  document.querySelectorAll('.somente-dono').forEach(el => {
+    el.style.display = modoVisitante ? 'none' : '';
+  });
+  document.querySelectorAll('.somente-visitante').forEach(el => {
+    el.style.display = modoVisitante ? '' : 'none';
+  });
+}
+
+let jaAmigos = false;
+
+async function verificarAmizade() {
+  if (!modoVisitante) return;
+
+  const { data } = await supabaseClient
+    .from('friendships')
+    .select('id')
+    .or(`and(user_id.eq.${usuario.id},amigo_id.eq.${perfilId}),and(user_id.eq.${perfilId},amigo_id.eq.${usuario.id})`)
+    .maybeSingle();
+
+  jaAmigos = !!data;
+  atualizarBotaoAmizade();
+}
+
+function atualizarBotaoAmizade() {
+  const btn = document.getElementById('btn-amizade');
+  const status = document.getElementById('status-amizade');
+  if (!btn) return;
+
+  if (jaAmigos) {
+    btn.textContent = 'Desfazer amizade';
+    btn.classList.add('btn-perigo');
+    status.textContent = '';
+  } else {
+    btn.textContent = 'Adicionar amigo';
+    btn.classList.remove('btn-perigo');
+    status.textContent = '';
+  }
+}
+
+async function alternarAmizade() {
+  if (jaAmigos) {
+    await supabaseClient
+      .from('friendships')
+      .delete()
+      .or(`and(user_id.eq.${usuario.id},amigo_id.eq.${perfilId}),and(user_id.eq.${perfilId},amigo_id.eq.${usuario.id})`);
+    jaAmigos = false;
+  } else {
+    const { error } = await supabaseClient
+      .from('friendships')
+      .insert([{ user_id: usuario.id, amigo_id: perfilId }]);
+    if (!error) jaAmigos = true;
+  }
+  atualizarBotaoAmizade();
+}
+
 async function carregarPerfil() {
   const { data, error } = await supabaseClient
     .from('users')
     .select('nome, bio, foto_url, capa_url, cor_destaque, avatar_emoji, filme_favorito, genero_favorito, streaming_favorito, link_externo, apelido, customizacao')
-    .eq('id', usuario.id)
+    .eq('id', perfilId)
     .single();
 
   if (error || !data) return;
 
   const custom = data.customizacao || {};
 
+  document.getElementById('titulo-pagina-perfil').textContent = modoVisitante
+    ? `Perfil de ${data.apelido || data.nome}`
+    : 'Meu Perfil';
+
   document.getElementById('perfil-nome').textContent = data.apelido || data.nome;
   document.getElementById('perfil-bio').value = data.bio || '';
+  document.getElementById('perfil-bio-leitura').textContent = data.bio || '';
   document.getElementById('editar-nome').value = data.nome;
   document.getElementById('editar-apelido').value = data.apelido || '';
   atualizarContadorBio();
@@ -105,6 +170,119 @@ async function carregarPerfil() {
   document.getElementById('input-streaming-favorito').value = data.streaming_favorito || '';
   document.getElementById('input-link-externo').value = data.link_externo || '';
   renderizarTagsPerfil(data);
+
+  aplicarModoVisualizacao();
+  verificarAmizade();
+  calcularConquistas(perfilId);
+  carregarHistoricoFilmesUsuario(perfilId);
+}
+
+// ---- Conquistas (calculadas a partir de movies/votes, sem tabela nova) ----
+async function calcularConquistas(idUsuarioAlvo) {
+  const cardEl = document.getElementById('card-conquistas');
+  const listaEl = document.getElementById('lista-conquistas');
+
+  const { data: filmesSugeridos } = await supabaseClient
+    .from('movies')
+    .select('id, session_id')
+    .eq('sugerido_por', idUsuarioAlvo);
+
+  const totalSugeridos = (filmesSugeridos || []).length;
+  let vitorias = 0;
+
+  if (totalSugeridos > 0) {
+    const sessionIds = [...new Set(filmesSugeridos.map(f => f.session_id))];
+
+    const { data: sessoesFechadas } = await supabaseClient
+      .from('sessions')
+      .select('id')
+      .in('id', sessionIds)
+      .eq('status', 'fechada');
+
+    for (const sessao of sessoesFechadas || []) {
+      const { data: todosFilmes } = await supabaseClient
+        .from('movies').select('id, sugerido_por').eq('session_id', sessao.id);
+      const { data: votos } = await supabaseClient
+        .from('votes').select('movie_id').eq('session_id', sessao.id);
+
+      const contagem = {};
+      (votos || []).forEach(v => { contagem[v.movie_id] = (contagem[v.movie_id] || 0) + 1; });
+
+      const maxVotos = Math.max(0, ...(todosFilmes || []).map(f => contagem[f.id] || 0));
+      if (maxVotos === 0) continue;
+
+      const venceu = (todosFilmes || []).some(
+        f => f.sugerido_por === idUsuarioAlvo && (contagem[f.id] || 0) === maxVotos
+      );
+      if (venceu) vitorias++;
+    }
+  }
+
+  const tiersSugestao = [1, 5, 10, 25];
+  const tiersVitoria = [1, 3, 5, 10];
+
+  const conquistas = [
+    ...tiersSugestao.filter(t => totalSugeridos >= t).map(t => `Sugeriu ${t}+ filme${t > 1 ? 's' : ''}`),
+    ...tiersVitoria.filter(t => vitorias >= t).map(t => `Venceu ${t}+ votaç${t > 1 ? 'ões' : 'ão'}`)
+  ];
+
+  if (conquistas.length === 0) {
+    cardEl.style.display = 'none';
+    return;
+  }
+
+  cardEl.style.display = 'block';
+  listaEl.innerHTML = conquistas.map(c => `<span class="tag-perfil">${c}</span>`).join('');
+}
+
+// ---- Histórico de filmes sugeridos por esse usuário ----
+async function carregarHistoricoFilmesUsuario(idUsuarioAlvo) {
+  const cardEl = document.getElementById('card-historico-filmes');
+  const el = document.getElementById('historico-filmes-usuario');
+
+  const { data: filmes } = await supabaseClient
+    .from('movies')
+    .select('id, titulo, session_id, sessions(titulo, status)')
+    .eq('sugerido_por', idUsuarioAlvo)
+    .order('created_at', { ascending: false })
+    .limit(30);
+
+  if (!filmes || filmes.length === 0) {
+    cardEl.style.display = 'none';
+    return;
+  }
+
+  cardEl.style.display = 'block';
+  el.innerHTML = '<p><em>Carregando...</em></p>';
+
+  const linhas = [];
+  for (const filme of filmes) {
+    const sessao = filme.sessions;
+    let situacao = 'Sessão em aberto';
+
+    if (sessao && sessao.status === 'fechada') {
+      const { data: todosFilmes } = await supabaseClient
+        .from('movies').select('id').eq('session_id', filme.session_id);
+      const { data: votos } = await supabaseClient
+        .from('votes').select('movie_id').eq('session_id', filme.session_id);
+
+      const contagem = {};
+      (votos || []).forEach(v => { contagem[v.movie_id] = (contagem[v.movie_id] || 0) + 1; });
+      const maxVotos = Math.max(0, ...(todosFilmes || []).map(f => contagem[f.id] || 0));
+      const venceu = maxVotos > 0 && (contagem[filme.id] || 0) === maxVotos;
+
+      situacao = venceu ? 'Venceu a votação' : 'Não venceu';
+    }
+
+    linhas.push(`
+      <div class="historico-item">
+        <strong>${filme.titulo}</strong>${sessao ? ` — ${sessao.titulo}` : ''}
+        <span class="detalhes-sessao">${situacao}</span>
+      </div>
+    `);
+  }
+
+  el.innerHTML = linhas.join('');
 }
 
 function extrairIdYoutubePerfil(url) {
@@ -125,11 +303,11 @@ function alternarMusica() {
 
   if (!musicaTocando) {
     embedEl.innerHTML = `<iframe width="1" height="1" src="https://www.youtube.com/embed/${videoId}?autoplay=1" allow="autoplay" frameborder="0"></iframe>`;
-    btn.textContent = '⏸️ Parar música';
+    btn.textContent = 'Parar música';
     musicaTocando = true;
   } else {
     embedEl.innerHTML = '';
-    btn.textContent = '▶️ Tocar música do perfil';
+    btn.textContent = 'Tocar música do perfil';
     musicaTocando = false;
   }
 }
@@ -138,14 +316,14 @@ function renderizarTagsPerfil(data) {
   const container = document.getElementById('tags-perfil-preview');
   const tags = [];
 
-  if (data.filme_favorito) tags.push(`🎬 ${data.filme_favorito}`);
-  if (data.genero_favorito) tags.push(`🎭 ${data.genero_favorito}`);
-  if (data.streaming_favorito) tags.push(`📺 ${data.streaming_favorito}`);
+  if (data.filme_favorito) tags.push(`Filme favorito: ${data.filme_favorito}`);
+  if (data.genero_favorito) tags.push(`Gênero favorito: ${data.genero_favorito}`);
+  if (data.streaming_favorito) tags.push(`Streaming: ${data.streaming_favorito}`);
 
   container.innerHTML = tags.map(t => `<span class="tag-perfil">${t}</span>`).join('');
 
   if (data.link_externo) {
-    container.innerHTML += `<a class="link-externo-btn" href="${data.link_externo}" target="_blank" rel="noopener noreferrer">🔗 Ver link externo</a>`;
+    container.innerHTML += `<a class="link-externo-btn" href="${data.link_externo}" target="_blank" rel="noopener noreferrer">Ver link externo</a>`;
   }
 }
 

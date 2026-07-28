@@ -35,19 +35,19 @@ async function carregarGrupos() {
             <button class="btn-colapsar" onclick="alternarGrupo('${grupo.id}')" id="toggle-${grupo.id}">${colapsado ? '▶' : '▼'}</button>
             ${grupo.icone_url
               ? `<img src="${grupo.icone_url}" class="grupo-icone" alt="Ícone do grupo">`
-              : `<span class="grupo-icone-vazio">🎬</span>`
+              : `<span class="grupo-icone-vazio">Sem ícone</span>`
             }
             <h3 id="nome-grupo-${grupo.id}">${grupo.nome}</h3>
           </div>
           <div class="acoes-grupo">
             ${souCriador
               ? `<label class="btn-upload-icone">
-                   🖼️ Ícone
+                   Ícone
                    <input type="file" accept="image/*" style="display:none" onchange="trocarIconeGrupo('${grupo.id}', this)">
                  </label>
-                 <button onclick="editarNomeGrupo('${grupo.id}', '${grupo.nome.replace(/'/g, "\\'")}')">✏️ Renomear</button>
-                 <button class="btn-perigo" onclick="excluirGrupo('${grupo.id}')">🗑️ Excluir grupo</button>`
-              : `<button class="btn-perigo" onclick="sairDoGrupo('${grupo.id}')">🚪 Sair do grupo</button>`
+                 <button onclick="editarNomeGrupo('${grupo.id}', '${grupo.nome.replace(/'/g, "\\'")}')">Renomear</button>
+                 <button class="btn-perigo" onclick="excluirGrupo('${grupo.id}')">Excluir grupo</button>`
+              : `<button class="btn-perigo" onclick="sairDoGrupo('${grupo.id}')">Sair do grupo</button>`
             }
           </div>
         </div>
@@ -67,7 +67,7 @@ async function carregarGrupos() {
               <button onclick="criarSessao('${grupo.id}')">Nova sessão</button>
           </div>
           <details>
-              <summary>📜 Histórico de vencedores</summary>
+              <summary>Histórico de vencedores</summary>
               <div id="historico-${grupo.id}">Carregando...</div>
           </details>
         </div>
@@ -108,8 +108,8 @@ async function carregarAvisoVotacoes(groupIds) {
   }
 
   el.textContent = pendentes === 1
-    ? '🍿 Você tem 1 sessão aberta aguardando seu voto!'
-    : `🍿 Você tem ${pendentes} sessões abertas aguardando seu voto!`;
+    ? 'Você tem 1 sessão aberta aguardando seu voto!'
+    : `Você tem ${pendentes} sessões abertas aguardando seu voto!`;
   el.style.display = 'block';
 }
 
@@ -142,8 +142,8 @@ async function carregarSessoesDoGrupo(groupId) {
         ${detalhes ? `<div class="detalhes-sessao">${detalhes}</div>` : ''}
       </div>
       ${souCriador ? `
-        <button onclick="editarTituloSessao('${s.id}', '${groupId}', '${s.titulo.replace(/'/g, "\\'")}')">✏️</button>
-        <button class="btn-perigo" onclick="excluirSessao('${s.id}', '${groupId}')">🗑️</button>
+        <button onclick="editarTituloSessao('${s.id}', '${groupId}', '${s.titulo.replace(/'/g, "\\'")}')">Editar</button>
+        <button class="btn-perigo" onclick="excluirSessao('${s.id}', '${groupId}')">Excluir</button>
       ` : ''}
     </div>
   `;
@@ -216,7 +216,7 @@ async function carregarMembrosDoGrupo(groupId) {
     (membros || []).map(m => {
       const ehCriador = m.id === (grupo && grupo.criado_por);
       const podeRemover = souCriadorDoGrupo && !ehCriador;
-      return `<span class="membro-item">${m.nome}${ehCriador ? ' 👑' : ''}${
+      return `<span class="membro-item">${m.nome}${ehCriador ? ' (dono)' : ''}${
         podeRemover
           ? ` <button class="btn-perigo btn-mini" onclick="removerMembro('${groupId}', '${m.id}', '${m.nome.replace(/'/g, "\\'")}')">remover</button>`
           : ''
@@ -329,7 +329,7 @@ async function carregarHistoricoDoGrupo(groupId) {
     linhas.push(`
       <div class="historico-item">
         <strong>${sessao.titulo}</strong> —
-        🏆 ${vencedor ? vencedor.titulo : 'sem filmes'}
+        Vencedor: ${vencedor ? vencedor.titulo : 'sem filmes'}
         (${contagem[vencedor?.id] || 0} votos)
       </div>
     `);

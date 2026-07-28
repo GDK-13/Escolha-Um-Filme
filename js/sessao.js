@@ -16,7 +16,7 @@ async function carregarSessao() {
   sessaoAtual = sessao;
 
   document.getElementById('sessao-titulo').textContent =
-    `🎬 ${sessao.titulo} (${sessao.status})`;
+    `${sessao.titulo} (${sessao.status})`;
 
   const detalhes = [
     sessao.data_sessao ? new Date(sessao.data_sessao + 'T00:00:00').toLocaleDateString('pt-BR') : null,
@@ -147,7 +147,7 @@ async function carregarFilmes(statusSessao) {
     return `
         <div class="card filme ${ehVencedor ? 'vencedor' : ''}">
             ${filme.poster_url ? `<img src="${filme.poster_url}" class="poster" alt="${filme.titulo}">` : ''}
-            <h3>${filme.titulo} ${ehVencedor ? '🏆' : ''}</h3>
+            <h3>${filme.titulo} ${ehVencedor ? '(vencedor)' : ''}</h3>
             <p>${votosDoFilme} voto(s)</p>
             ${statusSessao === 'aberta' ? `
             <button ${jaVoteiAqui ? 'disabled' : ''} onclick="votar('${filme.id}')">
@@ -155,8 +155,8 @@ async function carregarFilmes(statusSessao) {
             </button>
             ` : ''}
             ${possoEditar ? `
-            <button onclick="editarFilme('${filme.id}', '${filme.titulo.replace(/'/g, "\\'")}')">✏️</button>
-            <button class="btn-perigo" onclick="removerFilme('${filme.id}')">🗑️</button>
+            <button onclick="editarFilme('${filme.id}', '${filme.titulo.replace(/'/g, "\\'")}')">Editar</button>
+            <button class="btn-perigo" onclick="removerFilme('${filme.id}')">Excluir</button>
             ` : ''}
         </div>
     `;

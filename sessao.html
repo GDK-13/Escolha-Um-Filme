@@ -1,0 +1,36 @@
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Sessão de Filme</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="topo">
+      <h1 id="sessao-titulo">Carregando...</h1>
+      <a href="grupos.html">← Voltar</a>
+    </div>
+
+    <div class="card">
+      <h2>Sugerir filme</h2>
+      <input type="text" id="novo-filme" placeholder="Título do filme">
+      <button onclick="sugerirFilme()">Adicionar</button>
+    </div>
+
+    <div id="lista-filmes"></div>
+
+    <div class="card">
+      <button onclick="fecharSessao()" id="btn-fechar">Fechar votação e ver vencedor</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/sessao.js"></script>
+</body>
+</html>

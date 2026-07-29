@@ -86,6 +86,17 @@
   --marquise-cor: #ffff00;
   --marquise-borda: 2px ridge #C0C0C0;
 
+  /* Barra de botoes topo */
+  --barra-acao-bg: linear-gradient(to bottom, #4466cc, #334499);
+  --barra-acao-borda: 2px outset #7788cc;
+  --barra-acao-hover-bg: linear-gradient(to bottom, #5577dd, #4466aa);
+  --barra-tema-bg: linear-gradient(to bottom, #dd8800, #bb6600);
+  --barra-tema-borda: 2px outset #ffaa44;
+  --barra-tema-hover-bg: linear-gradient(to bottom, #ee9900, #cc7700);
+  --barra-sair-bg: linear-gradient(to bottom, #aa2222, #881111);
+  --barra-sair-borda: 2px outset #cc4444;
+  --barra-sair-hover-bg: linear-gradient(to bottom, #bb3333, #992222);
+
   /* Footer */
   --footer-bg: linear-gradient(to right, #000044, #000066, #000044);
   --footer-borda-top: 3px ridge #C0C0C0;
@@ -192,6 +203,17 @@
   --marquise-bg: linear-gradient(to right, #cc99ff, #9966cc, #cc99ff);
   --marquise-cor: #663399;
   --marquise-borda: 2px ridge #999999;
+
+  /* Barra de botoes topo */
+  --barra-acao-bg: linear-gradient(to bottom, #9966cc, #7744aa);
+  --barra-acao-borda: 2px outset #bb99dd;
+  --barra-acao-hover-bg: linear-gradient(to bottom, #aa77dd, #8855bb);
+  --barra-tema-bg: linear-gradient(to bottom, #cc7733, #aa5522);
+  --barra-tema-borda: 2px outset #ee9955;
+  --barra-tema-hover-bg: linear-gradient(to bottom, #dd8844, #bb6633);
+  --barra-sair-bg: linear-gradient(to bottom, #cc4444, #aa2222);
+  --barra-sair-borda: 2px outset #ee6666;
+  --barra-sair-hover-bg: linear-gradient(to bottom, #dd5555, #bb3333);
 
   --footer-bg: linear-gradient(to right, #cc99ff, #e0ccff, #cc99ff);
   --footer-borda-top: 3px ridge #999999;
@@ -302,12 +324,12 @@ a:hover { color: var(--link-hover); }
 /* ---------------- Cabeçalho / Topo ---------------- */
 
 .topo {
-  display: block; 
+  display: block;
   text-align: center;
   margin-bottom: 25px;
   padding: 15px;
   background: var(--topo-bg);
-  border: var(--topo-borda); 
+  border: var(--topo-borda);
   border-radius: 0;
   box-shadow: none;
 }
@@ -322,7 +344,75 @@ a:hover { color: var(--link-hover); }
 
 .topo > div button { margin: 0; }
 
-/* ---------------- Navegação ---------------- */
+/* ---------------- Barra de Botoes (unifica nav + acoes) ---------------- */
+
+.barra-botoes {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: transparent; 
+  border: none; 
+  padding: 0;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.barra-botoes .nav-links,
+.barra-botoes .acoes {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.saudacao-usuario {
+  color: var(--texto-geral);
+  font-size: var(--tamanho-pequeno);
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+/* Links de navegação com visual idêntico ao botão global */
+.barra-botoes .nav-links a {
+  display: inline-block;
+  vertical-align: middle;
+  background: var(--botao-bg);
+  border: var(--botao-borda);
+  color: var(--botao-cor);
+  border-radius: 0;
+  padding: 5px 14px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.barra-botoes .nav-links a:hover {
+  background: var(--botao-hover-bg);
+  color: var(--botao-hover-cor);
+}
+
+.barra-botoes .nav-links a:active {
+  border-style: inset;
+  padding: 6px 13px 4px 15px;
+}
+
+/* O botão de sair usa o fundo vermelho de perigo, mas preserva o texto amarelo */
+.barra-botoes .btn-sair {
+  background: var(--botao-perigo-bg) !important;
+  color: var(--botao-cor) !important;
+}
+
+.barra-botoes .btn-sair:hover {
+  background: var(--botao-perigo-hover-bg) !important;
+  color: var(--botao-hover-cor) !important;
+}
+
+/* ---------------- Navegacao (legado, mantido para compatibilidade) ---------------- */
 
 .nav-principal {
   display: inline-flex;
@@ -1000,6 +1090,12 @@ details summary {
   h1 { font-size: calc(var(--tamanho-titulo-1) * 0.8); }
   .topo > div { justify-content: center; }
   .theme-toggle, .topo button { flex: 1 1 auto; }
+  .barra-botoes { justify-content: center; }
+  .barra-botoes .nav-links,
+  .barra-botoes .acoes { width: 100%; justify-content: center; }
+  .barra-botoes .nav-links a,
+  .barra-botoes .acoes button { flex: 1; text-align: center; }
+  .saudacao-usuario { width: 100%; text-align: center; margin-bottom: 4px; }
   .nav-principal { display: flex; width: 100%; justify-content: center; }
   .nav-principal a { flex: 1; text-align: center; }
   .card { padding: 10px; }

@@ -46,18 +46,25 @@
           <div class="marquise">
             <div id="texto-aleatorio" class="marquise-texto">Carregando textos...</div>
           </div>
+          <div class="barra-botoes">
+            <!-- Bloco Esquerdo: Navegação -->
+            <nav class="nav-links" >
+              <a href="grupos.html">🏠 Grupos</a>
+              <a href="amigos.html">👥 Amigos</a>
+              <a href="perfil.html">👤 Perfil</a>
+            </nav>
+            
+            <!-- Bloco Direito: Perfil e Ações -->
+            <div class="acoes">
+              <!-- Span mantido vazio para ser injetado via JS (igual ao #perfil-nome original) -->
+              <span id="saudacao-usuario" class="saudacao-usuario">👋 Carregando...</span>
+              <button id="btn-densidade" onclick="alternarDensidade()">📐 Esparso</button>
+              <button id="btn-tema" onclick="alternarTema()">☀️ Claro</button>
+              <button class="btn-sair" onclick="logout()">🚪 Sair</button>
+            </div>
+          </div>
         <h1>Meus Grupos</h1>
         <p id="aviso-votacoes" class="aviso-votacoes" style="display:none;"></p>
-        <nav class="nav-principal">
-            <a href="perfil.html">Perfil</a>
-            <a href="amigos.html">Amigos</a>
-            <a href="customizacao.html">Personalizar</a>
-        </nav>
-        <div>
-            <button class="theme-toggle" id="btn-tema" onclick="alternarTema()">Claro</button>
-        <button id="btn-densidade" onclick="alternarDensidade()">Compacto</button>
-            <button onclick="logout()">Sair</button>
-        </div>
     </div>
 
     <div class="card">

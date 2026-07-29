@@ -1,6 +1,8 @@
 const usuario = getUsuarioLogado();
 if (!usuario) window.location.href = 'index.html';
 
+document.getElementById('saudacao-usuario').textContent = '👋 ' + (usuario.nome || 'Visitante');
+
 async function carregarGrupos() {
   // Pega os ids dos grupos que o usuário participa
   const { data: memberships } = await supabaseClient

@@ -75,29 +75,30 @@ document.addEventListener('DOMContentLoaded', () => {
     "Ah, num dá! Eu vou pular fora, que eu vou pra casa. A RÁ RÁ RÁ RÁ RÁ RÁ RÁ RÁ tchatchatchau! Beijinhos pra voceissss meninosxss.",
     "Correspondente da Choquei direto de Ratanabá",
     "Meus pesâmes querida. quero ver quem vai ficar com a roupa dela.",
-    "O capitalismo falhou, falha e falhará em cada uma das sociedades aonde ele colocar os seus tentáculos que se baseiam na expropriação e na exploração do homem pelo homem. É isso que nós combatemos!"
+    "O capitalismo falhou, falha e falhará em cada uma das sociedades aonde ele colocar os seus tentáculos que se baseiam na expropriação e na exploração do homem pelo homem. É isso que nós combatemos!",
+    "No grupo de gestão nós temos 5 pessoas e um estágiário."
   ];
 
 const marqueeTexto = document.getElementById('texto-aleatorio');
 
-  if (marqueeTexto) {
-    const trocarTexto = () => {
-      const indiceAleatorio = Math.floor(Math.random() * textos.length);
-      const novoTexto = textos[indiceAleatorio];
-      const tempoCalculado = Math.max(12, novoTexto.length * 0.15);
+if (marqueeTexto) {
+  const trocarTexto = () => {
+    const indiceAleatorio = Math.floor(Math.random() * textos.length);
+    const novoTexto = textos[indiceAleatorio];
+    
+    const tempoCalculado = Math.max(12, novoTexto.length * 0.15);
 
-      marqueeTexto.style.animation = 'none';
-      marqueeTexto.textContent = novoTexto;
+    marqueeTexto.style.animation = 'none';
 
-      void marqueeTexto.offsetWidth;
+    marqueeTexto.textContent = novoTexto;
 
-      marqueeTexto.style.animation = `rolar-marquise ${tempoCalculado}s linear infinite`;
-    };
+    void marqueeTexto.offsetWidth;
 
-    // Inicia a primeira vez
-    trocarTexto();
+    marqueeTexto.style.animation = `rolar-marquise ${tempoCalculado}s linear forwards`;
+  };
 
-    // Troca o texto DEPOIS que ele terminar de passar na tela (loop)
-    marqueeTexto.addEventListener('animationiteration', trocarTexto);
-  }
+  trocarTexto();
+
+  marqueeTexto.addEventListener('animationend', trocarTexto);
+}
 });

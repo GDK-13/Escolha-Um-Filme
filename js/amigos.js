@@ -1,6 +1,8 @@
 const usuario = getUsuarioLogado();
 if (!usuario) window.location.href = 'index.html';
 
+document.getElementById('saudacao-usuario').textContent = '👋 ' + (usuario.nome || 'Visitante');
+
 async function adicionarAmigo(nomeAmigo) {
   const erroEl = document.getElementById('amigo-erro');
   erroEl.textContent = '';

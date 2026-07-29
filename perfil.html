@@ -11,17 +11,21 @@
 <body>
   <div class="container">
     <div class="topo">
-      <h1 id="titulo-pagina-perfil">Meu Perfil</h1>
-      <nav class="nav-principal">
-        <a href="grupos.html">← Grupos</a>
-        <a href="amigos.html">Amigos</a>
-        <a href="customizacao.html">Personalizar</a>
-      </nav>
-      <div>
-        <button class="theme-toggle" id="btn-tema" onclick="alternarTema()">Claro</button>
-        <button id="btn-densidade" onclick="alternarDensidade()">Compacto</button>
-        <button onclick="logout()">Sair</button>
+      <div class="barra-botoes">
+            <nav class="nav-links" >
+              <a href="grupos.html">🏠 Grupos</a>
+              <a href="customizacao.html">🎨 Personalizar</a>
+              <a href="amigos.html">👥 Amigos</a>
+            </nav>
+            
+            <div class="acoes">
+              <span id="saudacao-usuario" class="saudacao-usuario">👋 Carregando...</span>
+              <button id="btn-densidade" onclick="alternarDensidade()">📐 Esparso</button>
+              <button id="btn-tema" onclick="alternarTema()">☀️ Claro</button>
+              <button class="btn-sair" onclick="logout()">🚪 Sair</button>
+            </div>
       </div>
+      <h1 id="titulo-pagina-perfil">Meu Perfil</h1>
     </div>
 
     <div class="card" id="card-perfil-principal">

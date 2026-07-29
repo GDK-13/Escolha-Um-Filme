@@ -1,6 +1,8 @@
 const usuario = getUsuarioLogado();
 if (!usuario) window.location.href = 'index.html';
 
+document.getElementById('saudacao-usuario').textContent = '👋 ' + (usuario.nome || 'Visitante');
+
 let customizacaoAtual = {};
 
 async function carregarCustomizacao() {

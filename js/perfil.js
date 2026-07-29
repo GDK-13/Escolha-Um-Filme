@@ -1,6 +1,8 @@
 const usuario = getUsuarioLogado();
 if (!usuario) window.location.href = 'index.html';
 
+document.getElementById('saudacao-usuario').textContent = '👋 ' + (usuario.nome || 'Visitante');
+
 const paramsUrl = new URLSearchParams(window.location.search);
 const perfilId = paramsUrl.get('id') || usuario.id;
 const modoVisitante = perfilId !== usuario.id;

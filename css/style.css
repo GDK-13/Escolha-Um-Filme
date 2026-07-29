@@ -344,7 +344,7 @@ a:hover { color: var(--link-hover); }
 
 .topo > div button { margin: 0; }
 
-/* ---------------- Barra de Botoes (unifica nav + acoes) ---------------- */
+/* ---------------- Barra de Botoes (unifica nav + acoes ) ---------------- */
 
 .barra-botoes {
   display: flex;

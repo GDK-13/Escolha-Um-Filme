@@ -73,7 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
     "I can give you Paris Hilton, I can give you Janet. Could give you Björk, but I don't think you'd understand it. I could give you sex doll, bitch, you love these legend lips.  And baby, I could give you model, with these double A-cup tits.",
     "Pedro Henrique Oliveira Garcia, quem é?    ||   ELE   ||   (╬☉д⊙) ＝ᅳᅳᅳᅴ)๏д๏))･;’. ",
     "Ah, num dá! Eu vou pular fora, que eu vou pra casa. A RÁ RÁ RÁ RÁ RÁ RÁ RÁ RÁ tchatchatchau! Beijinhos pra voceissss meninosxss.",
-    "Correspondente da Choquei direto de Ratanabá"  ];
+    "Correspondente da Choquei direto de Ratanabá",
+    "Meus pesâmes querida. quero ver quem vai ficar com a roupa dela.",
+    "O capitalismo falhou, falha e falhará em cada uma das sociedades aonde ele colocar os seus tentáculos que se baseiam na expropriação e na exploração do homem pelo homem. É isso que nós combatemos!"
+  ];
 
 const marqueeTexto = document.getElementById('texto-aleatorio');
 
@@ -83,17 +86,12 @@ const marqueeTexto = document.getElementById('texto-aleatorio');
       const novoTexto = textos[indiceAleatorio];
       const tempoCalculado = Math.max(12, novoTexto.length * 0.15);
 
-      // Pausa a animação antes de trocar o texto, pra evitar o glitch
-      // de o texto novo "piscar" fora da caixa enquanto o navegador
-      // recalcula o tamanho do elemento no meio do movimento.
       marqueeTexto.style.animation = 'none';
       marqueeTexto.textContent = novoTexto;
 
-      // Força o navegador a recalcular o layout antes de religar a animação
       void marqueeTexto.offsetWidth;
 
-      marqueeTexto.style.animationDuration = tempoCalculado + 's';
-      marqueeTexto.style.animation = '';
+      marqueeTexto.style.animation = `rolar-marquise ${tempoCalculado}s linear infinite`;
     };
 
     // Inicia a primeira vez

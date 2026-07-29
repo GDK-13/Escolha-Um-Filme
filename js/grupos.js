@@ -33,19 +33,11 @@ async function carregarGrupos() {
         <div class="cabecalho-grupo">
           <div class="cabecalho-grupo-titulo">
             <button class="btn-colapsar" onclick="alternarGrupo('${grupo.id}')" id="toggle-${grupo.id}">${colapsado ? '▶' : '▼'}</button>
-            ${grupo.icone_url
-              ? `<img src="${grupo.icone_url}" class="grupo-icone" alt="Ícone do grupo">`
-              : `<span class="grupo-icone-vazio">Sem ícone</span>`
-            }
             <h3 id="nome-grupo-${grupo.id}">${grupo.nome}</h3>
           </div>
           <div class="acoes-grupo">
             ${souCriador
-              ? `<label class="btn-upload-icone">
-                   Ícone
-                   <input type="file" accept="image/*" style="display:none" onchange="trocarIconeGrupo('${grupo.id}', this)">
-                 </label>
-                 <button onclick="editarNomeGrupo('${grupo.id}', '${grupo.nome.replace(/'/g, "\\'")}')">Renomear</button>
+              ? `<button onclick="editarNomeGrupo('${grupo.id}', '${grupo.nome.replace(/'/g, "\\'")}')">Renomear</button>
                  <button class="btn-perigo" onclick="excluirGrupo('${grupo.id}')">Excluir grupo</button>`
               : `<button class="btn-perigo" onclick="sairDoGrupo('${grupo.id}')">Sair do grupo</button>`
             }
@@ -463,91 +455,6 @@ function alternarGrupo(groupId) {
   const agoraColapsado = corpo.classList.toggle('colapsado');
   toggleBtn.textContent = agoraColapsado ? '▶' : '▼';
   localStorage.setItem(`grupo-colapsado-${groupId}`, agoraColapsado ? '1' : '0');
-}
-
-async function comprimirImagem(arquivo, tamanhoMax = 300, qualidade = 0.7) {
-  const bitmap = await createImageBitmap(arquivo);
-
-  // Calcula o novo tamanho mantendo a proporção, sem passar de tamanhoMax
-  let { width, height } = bitmap;
-  if (width > height && width > tamanhoMax) {
-    height = Math.round(height * (tamanhoMax / width));
-    width = tamanhoMax;
-  } else if (height > tamanhoMax) {
-    width = Math.round(width * (tamanhoMax / height));
-    height = tamanhoMax;
-  }
-
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(bitmap, 0, 0, width, height);
-
-  return new Promise(resolve => {
-    canvas.toBlob(blob => resolve(blob), 'image/jpeg', qualidade);
-  });
-}
-
-async function trocarIconeGrupo(groupId, inputFile) {
-  const arquivo = inputFile.files[0];
-  if (!arquivo) return;
-
-  if (!arquivo.type.startsWith('image/')) {
-    alert('Selecione um arquivo de imagem.');
-    return;
-  }
-
-  if (arquivo.size > 10 * 1024 * 1024) {
-    alert('Imagem muito grande (máx 10MB antes de comprimir).');
-    return;
-  }
-
-  const { data: grupo } = await supabaseClient
-    .from('groups')
-    .select('criado_por')
-    .eq('id', groupId)
-    .single();
-
-  if (!grupo || grupo.criado_por !== usuario.id) {
-    alert('Só quem criou o grupo pode trocar o ícone.');
-    return;
-  }
-
-  const imagemComprimida = await comprimirImagem(arquivo, 300, 0.7);
-
-  // Sempre .jpg porque a compressão converte tudo pra JPEG
-  const caminho = `group-${groupId}.jpg`;
-
-  const { error: erroUpload } = await supabaseClient
-    .storage
-    .from('avatars')
-    .upload(caminho, imagemComprimida, { upsert: true, contentType: 'image/jpeg' });
-
-  if (erroUpload) {
-    alert('Erro ao enviar o ícone.');
-    return;
-  }
-
-  const { data: urlData } = supabaseClient
-    .storage
-    .from('avatars')
-    .getPublicUrl(caminho);
-
-  const iconeUrl = `${urlData.publicUrl}?t=${Date.now()}`;
-
-  const { error: erroUpdate } = await supabaseClient
-    .from('groups')
-    .update({ icone_url: iconeUrl })
-    .eq('id', groupId)
-    .eq('criado_por', usuario.id);
-
-  if (erroUpdate) {
-    alert('Ícone enviado, mas erro ao salvar no grupo.');
-    return;
-  }
-
-  carregarGrupos();
 }
 
 carregarGrupos();

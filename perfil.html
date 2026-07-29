@@ -52,7 +52,6 @@
       </div>
 
       <img id="perfil-foto" class="perfil-foto" alt="Foto de perfil">
-      <div class="avatar-emoji-grande" id="avatar-emoji-grande" style="display:none;"></div>
 
       <div class="somente-dono" id="edicao-foto">
         <div class="preview-foto-area" id="preview-foto-area" style="display:none;">
@@ -68,13 +67,6 @@
           Trocar foto
           <input type="file" id="input-foto" accept="image/*" style="display:none" onchange="previsualizarFoto(this)">
         </label>
-
-        <div class="campo-avatar-emoji">
-          <label for="avatar-emoji-input">Usar emoji como avatar em vez da foto (opcional):</label>
-          <input type="text" id="avatar-emoji-input" placeholder="Ex: filme, clap, pipoca..." maxlength="8">
-          <button onclick="salvarAvatarEmoji()">Salvar</button>
-          <button class="btn-perigo" onclick="limparAvatarEmoji()">Remover emoji</button>
-        </div>
 
         <label for="cor-destaque-input">Cor de destaque do seu perfil:</label>
         <input type="color" id="cor-destaque-input" class="campo-cor" onchange="salvarCorDestaque(this.value)">

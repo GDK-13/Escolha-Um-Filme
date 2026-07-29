@@ -257,24 +257,24 @@ a:hover { color: var(--link-hover); }
 
 .theme-toggle, button {
   display: inline-block;
+  vertical-align: middle;
   background: #C0C0C0; 
   border: 2px outset #FFFFFF;
   color: #000000;
   border-radius: 0;
-  padding: 6px 15px;
+  padding: 4px 15px;
   font-family: var(--font-body);
   font-size: var(--tamanho-pequeno);
   font-weight: bold;
   cursor: pointer;
-  margin: 8px 6px 8px 0;
+  margin: 0;
   box-shadow: none;
   transition: none;
-  line-height: 1.2;
 }
 
 .theme-toggle:active, button:active {
   border-style: inset;
-  padding: 7px 14px 5px 16px;
+  padding: 5px 14px 3px 16px;
 }
 
 button:disabled {
@@ -302,6 +302,10 @@ button:disabled {
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
+  background-color: var(--card-titulo-bg);
+  margin: -15px -15px 15px -15px;
+  padding: 8px 10px;
+  border-bottom: var(--card-titulo-borda);
 }
 
 .cabecalho-grupo-titulo {
@@ -312,7 +316,16 @@ button:disabled {
   min-width: 150px;
 }
 
-.cabecalho-grupo h3 { flex: 1; margin: 0; }
+.card .cabecalho-grupo h2,
+.card .cabecalho-grupo h3 {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.cabecalho-grupo button { margin-top: 0; margin-bottom: 0; }
 
 .grupo-icone {
   width: 40px;
@@ -331,8 +344,14 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 9px;
+  line-height: 1.1;
+  text-align: center;
   background: #DDDDDD;
+  color: #555555;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 2px;
 }
 
 .btn-colapsar {
@@ -535,6 +554,12 @@ button:disabled {
 
 /* ---------------- Formulários ---------------- */
 
+label {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 4px 8px 4px 0;
+}
+
 input, textarea, select {
   width: 100%;
   padding: 6px 8px; 
@@ -546,6 +571,7 @@ input, textarea, select {
   font-family: var(--font-body);
   font-size: var(--tamanho-base);
   outline: none;
+  vertical-align: middle;
 }
 
 select {
@@ -717,46 +743,14 @@ details summary {
   width: 100% !important;
 }
 
-.avatar-emoji-grande {
-  width: 120px;
-  height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 64px;
-  margin: 15px auto;
-  border: var(--img-borda);
-  background: var(--card-bg);
-}
-
-.campo-avatar-emoji {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 10px 0;
-}
-
-.campo-avatar-emoji label {
-  flex-basis: 100%;
-}
-
-.campo-avatar-emoji button { margin: 0; }
-
-.campo-avatar-emoji input {
-  width: 100px;
-  display: inline-block;
-  text-align: center;
-  font-size: 20px;
-}
-
 .campo-cor {
   width: 60px;
   height: 34px;
   padding: 2px;
   border: 2px inset #DFDFDF;
   cursor: pointer;
-  margin: 4px 0 12px;
+  margin: 4px 8px 4px 0;
+  vertical-align: middle;
 }
 
 .acoes-visitante {

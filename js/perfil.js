@@ -64,7 +64,7 @@ async function alternarAmizade() {
 async function carregarPerfil() {
   const { data, error } = await supabaseClient
     .from('users')
-    .select('nome, bio, foto_url, capa_url, cor_destaque, avatar_emoji, filme_favorito, genero_favorito, streaming_favorito, link_externo, apelido, customizacao')
+    .select('nome, bio, foto_url, capa_url, cor_destaque, filme_favorito, genero_favorito, streaming_favorito, link_externo, apelido, customizacao')
     .eq('id', perfilId)
     .single();
 
@@ -94,25 +94,18 @@ async function carregarPerfil() {
     'moldura-pixel', 'moldura-personalizada'
   ];
   const fotoElMoldura = document.getElementById('perfil-foto');
-  const emojiElMoldura = document.getElementById('avatar-emoji-grande');
   fotoElMoldura.classList.remove(...molduraClasses);
-  emojiElMoldura.classList.remove(...molduraClasses);
   fotoElMoldura.style.removeProperty('--moldura-cor');
   fotoElMoldura.style.removeProperty('--moldura-estilo');
-  emojiElMoldura.style.removeProperty('--moldura-cor');
-  emojiElMoldura.style.removeProperty('--moldura-estilo');
 
   if (custom.moldura_avatar && custom.moldura_avatar !== 'nenhuma') {
     fotoElMoldura.classList.add(`moldura-${custom.moldura_avatar}`);
-    emojiElMoldura.classList.add(`moldura-${custom.moldura_avatar}`);
 
     if (custom.moldura_avatar === 'personalizada') {
       const cor = custom.moldura_cor || '#FF00CC';
       const estilo = custom.moldura_estilo || 'solid';
-      [fotoElMoldura, emojiElMoldura].forEach(el => {
-        el.style.setProperty('--moldura-cor', cor);
-        el.style.setProperty('--moldura-estilo', estilo);
-      });
+      fotoElMoldura.style.setProperty('--moldura-cor', cor);
+      fotoElMoldura.style.setProperty('--moldura-estilo', estilo);
     }
   }
 
@@ -144,19 +137,10 @@ async function carregarPerfil() {
     capaEl.style.display = 'none';
   }
 
-  // Avatar: emoji tem prioridade sobre a foto, se estiver preenchido
+  // Avatar
   const fotoEl = document.getElementById('perfil-foto');
-  const emojiEl = document.getElementById('avatar-emoji-grande');
-  if (data.avatar_emoji) {
-    emojiEl.textContent = data.avatar_emoji;
-    emojiEl.style.display = 'flex';
-    fotoEl.style.display = 'none';
-  } else {
-    emojiEl.style.display = 'none';
-    fotoEl.style.display = 'block';
-    fotoEl.src = data.foto_url || 'https://placehold.co/150x150?text=Sem+foto';
-  }
-  document.getElementById('avatar-emoji-input').value = data.avatar_emoji || '';
+  fotoEl.style.display = 'block';
+  fotoEl.src = data.foto_url || 'https://placehold.co/150x150?text=Sem+foto';
 
   // Cor de destaque
   document.getElementById('cor-destaque-input').value = data.cor_destaque || '#000080';
@@ -523,41 +507,6 @@ async function confirmarNovaCapa() {
   cancelarNovaCapa();
   erroEl.textContent = 'Capa atualizada!';
   erroEl.classList.add('sucesso');
-}
-
-async function salvarAvatarEmoji() {
-  const emoji = document.getElementById('avatar-emoji-input').value.trim();
-  const erroEl = document.getElementById('perfil-erro');
-  erroEl.textContent = '';
-
-  const { error } = await supabaseClient
-    .from('users')
-    .update({ avatar_emoji: emoji || null })
-    .eq('id', usuario.id);
-
-  if (error) {
-    erroEl.textContent = 'Erro ao salvar avatar.';
-    return;
-  }
-
-  const fotoEl = document.getElementById('perfil-foto');
-  const emojiEl = document.getElementById('avatar-emoji-grande');
-  if (emoji) {
-    emojiEl.textContent = emoji;
-    emojiEl.style.display = 'flex';
-    fotoEl.style.display = 'none';
-  } else {
-    emojiEl.style.display = 'none';
-    fotoEl.style.display = 'block';
-  }
-
-  erroEl.textContent = 'Avatar atualizado!';
-  erroEl.classList.add('sucesso');
-}
-
-function limparAvatarEmoji() {
-  document.getElementById('avatar-emoji-input').value = '';
-  salvarAvatarEmoji();
 }
 
 async function salvarCorDestaque(cor) {

@@ -1,5 +1,6 @@
 const usuario = getUsuarioLogado();
 if (!usuario) window.location.href = 'index.html';
+let filmeEmEdicao = null;
 
 document.getElementById('saudacao-usuario').textContent = '👋 ' + (usuario.nome || 'Visitante');
 
@@ -36,46 +37,44 @@ async function carregarSessao() {
   carregarFilmes(sessao.status);
 }
 
-async function editarDetalhesSessaoAtual() {
+function abrirCardEdicaoSessao() {
   if (!sessaoAtual) return;
+  // Preenche os campos com os dados atuais
+  document.getElementById('edit-sessao-titulo').value = sessaoAtual.titulo || '';
+  document.getElementById('edit-sessao-data').value = sessaoAtual.data_sessao || '';
+  document.getElementById('edit-sessao-horario').value = sessaoAtual.horario || '';
+  document.getElementById('edit-sessao-local').value = sessaoAtual.local || '';
 
-  const novaData = prompt('Data (AAAA-MM-DD, vazio para remover):', sessaoAtual.data_sessao || '');
-  if (novaData === null) return;
-  const novoHorario = prompt('Horário (HH:MM, vazio para remover):', sessaoAtual.horario || '');
-  if (novoHorario === null) return;
-  const novoLocal = prompt('Local (vazio para remover):', sessaoAtual.local || '');
-  if (novoLocal === null) return;
-
-  const { error } = await supabaseClient
-    .from('sessions')
-    .update({
-      data_sessao: novaData.trim() || null,
-      horario: novoHorario.trim() || null,
-      local: novoLocal.trim() || null
-    })
-    .eq('id', sessionId)
-    .eq('criado_por', usuario.id);
-
-  if (error) { alert('Erro ao atualizar detalhes da sessão.'); return; }
-  carregarSessao();
+  // Esconde os botões normais e mostra o form
+  document.getElementById('card-dono-sessao').style.display = 'none';
+  document.getElementById('card-editar-sessao').style.display = 'block';
 }
 
-async function editarTituloSessaoAtual() {
-  if (!sessaoAtual) return;
-  const novoTitulo = prompt('Novo título da sessão:', sessaoAtual.titulo);
-  if (!novoTitulo || !novoTitulo.trim() || novoTitulo.trim() === sessaoAtual.titulo) return;
+function fecharCardEdicaoSessao() {
+  document.getElementById('card-editar-sessao').style.display = 'none';
+  document.getElementById('card-dono-sessao').style.display = 'block';
+}
 
-  const { error } = await supabaseClient
-    .from('sessions')
-    .update({ titulo: novoTitulo.trim() })
-    .eq('id', sessionId)
-    .eq('criado_por', usuario.id);
+async function salvarEdicaoSessao() {
+  const novoTitulo = document.getElementById('edit-sessao-titulo').value.trim();
+  const novaData = document.getElementById('edit-sessao-data').value || null;
+  const novoHorario = document.getElementById('edit-sessao-horario').value || null;
+  const novoLocal = document.getElementById('edit-sessao-local').value.trim() || null;
 
-  if (error) {
-    alert('Erro ao renomear sessão.');
+  if (!novoTitulo) {
+    alert('O título não pode ficar vazio.');
     return;
   }
 
+  const { error } = await supabaseClient
+    .from('sessions')
+    .update({ titulo: novoTitulo, data_sessao: novaData, horario: novoHorario, local: novoLocal })
+    .eq('id', sessionId)
+    .eq('criado_por', usuario.id);
+
+  if (error) { alert('Erro ao atualizar sessão.'); return; }
+
+  fecharCardEdicaoSessao();
   carregarSessao();
 }
 
@@ -149,39 +148,60 @@ async function carregarFilmes(statusSessao) {
     return `
         <div class="card filme ${ehVencedor ? 'vencedor' : ''}">
             ${filme.poster_url ? `<img src="${filme.poster_url}" class="poster" alt="${filme.titulo}">` : ''}
-            <h3>${filme.titulo} ${ehVencedor ? '(vencedor)' : ''}</h3>
-            <p>${votosDoFilme} voto(s)</p>
-            ${statusSessao === 'aberta' ? `
-            <button ${jaVoteiAqui ? 'disabled' : ''} onclick="votar('${filme.id}')">
-                ${textoBotaoVoto}
-            </button>
-            ` : ''}
-            ${possoEditar ? `
-            <button onclick="editarFilme('${filme.id}', '${filme.titulo.replace(/'/g, "\\'")}')">Editar</button>
-            <button class="btn-perigo" onclick="removerFilme('${filme.id}')">Excluir</button>
-            ` : ''}
+            
+            ${filmeEmEdicao === filme.id ? `
+              <!-- Modo Edição -->
+              <input type="text" id="edit-filme-${filme.id}" value="${filme.titulo.replace(/"/g, '&quot;')}" style="margin-bottom: 8px;">
+              <div>
+                <button onclick="salvarEdicaoFilme('${filme.id}')">Salvar</button>
+                <button class="btn-perigo" onclick="cancelarEdicaoFilme()">Cancelar</button>
+              </div>
+            ` : `
+              <!-- Modo Visualização -->
+              <h3>${filme.titulo} ${ehVencedor ? '(vencedor)' : ''}</h3>
+              <p>${votosDoFilme} voto(s)</p>
+              ${statusSessao === 'aberta' ? `
+              <button ${jaVoteiAqui ? 'disabled' : ''} onclick="votar('${filme.id}')">
+                  ${textoBotaoVoto}
+              </button>
+              ` : ''}
+              ${possoEditar ? `
+              <button onclick="abrirEdicaoFilme('${filme.id}')">Editar</button>
+              <button class="btn-perigo" onclick="removerFilme('${filme.id}')">Excluir</button>
+              ` : ''}
+            `}
         </div>
     `;
   }).join('');
 }
 
-async function editarFilme(movieId, tituloAtual) {
-  const novoTitulo = prompt('Novo título do filme:', tituloAtual);
-  if (!novoTitulo || !novoTitulo.trim() || novoTitulo.trim() === tituloAtual) return;
+function abrirEdicaoFilme(movieId) {
+  filmeEmEdicao = movieId;
+  carregarFilmes(sessaoAtual.status);
+}
+
+function cancelarEdicaoFilme() {
+  filmeEmEdicao = null;
+  carregarFilmes(sessaoAtual.status);
+}
+
+async function salvarEdicaoFilme(movieId) {
+  const input = document.getElementById(`edit-filme-${movieId}`);
+  const novoTitulo = input.value.trim();
+  if (!novoTitulo) return cancelarEdicaoFilme();
 
   const { data: existentes } = await supabaseClient
     .from('movies').select('id, titulo').eq('session_id', sessionId);
+  
   const jaExiste = (existentes || []).some(
-    m => m.id !== movieId && m.titulo.toLowerCase() === novoTitulo.trim().toLowerCase()
+    m => m.id !== movieId && m.titulo.toLowerCase() === novoTitulo.toLowerCase()
   );
   if (jaExiste) { alert('Já existe um filme com esse título nessa sessão.'); return; }
 
-  const { error } = await supabaseClient
-    .from('movies')
-    .update({ titulo: novoTitulo.trim() })
-    .eq('id', movieId);
-
+  const { error } = await supabaseClient.from('movies').update({ titulo: novoTitulo }).eq('id', movieId);
   if (error) { alert('Erro ao editar filme.'); return; }
+
+  filmeEmEdicao = null;
   carregarSessao();
 }
 

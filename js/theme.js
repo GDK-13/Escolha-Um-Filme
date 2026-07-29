@@ -76,7 +76,9 @@ document.addEventListener('DOMContentLoaded', () => {
     "Correspondente da Choquei direto de Ratanabá",
     "Meus pesâmes querida. quero ver quem vai ficar com a roupa dela.",
     "O capitalismo falhou, falha e falhará em cada uma das sociedades aonde ele colocar os seus tentáculos que se baseiam na expropriação e na exploração do homem pelo homem. É isso que nós combatemos!",
-    "No grupo de gestão nós temos 5 pessoas e um estágiário."
+    "No grupo de gestão nós temos 5 pessoas e um estágiário.",
+    "WHO THE FUCK DARE TO CALL ME WHEN I'M SO BUSY?",
+    "WHEEEEERE HAVE YOU BEEEEEEEEENNN ALL MY LAIAAAAAFE, ALLL MY LAAAAAIAAAAFE"
   ];
 
 const marqueeTexto = document.getElementById('texto-aleatorio');

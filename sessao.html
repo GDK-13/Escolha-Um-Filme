@@ -45,10 +45,27 @@
       <button onclick="fecharSessao()" id="btn-fechar">Fechar votação e ver vencedor</button>
     </div>
 
+    <!-- Card original do dono com botão único de editar -->
     <div class="card" id="card-dono-sessao" style="display:none;">
-      <button onclick="editarTituloSessaoAtual()">Renomear sessão</button>
-      <button onclick="editarDetalhesSessaoAtual()">Editar data/horário/local</button>
+      <button onclick="abrirCardEdicaoSessao()">Editar sessão</button>
       <button class="btn-perigo" onclick="excluirSessaoAtual()">Excluir sessão</button>
+    </div>
+
+    <!-- Novo card oculto que servirá como formulário de edição -->
+    <div class="card" id="card-editar-sessao" style="display:none;">
+      <h2>Editar Sessão</h2>
+      <label>Título da sessão:</label>
+      <input type="text" id="edit-sessao-titulo">
+      <label>Data:</label>
+      <input type="date" id="edit-sessao-data">
+      <label>Horário:</label>
+      <input type="time" id="edit-sessao-horario">
+      <label>Local:</label>
+      <input type="text" id="edit-sessao-local" placeholder="Ex: casa do João, streaming">
+      <div style="margin-top: 10px;">
+        <button onclick="salvarEdicaoSessao()">Salvar alterações</button>
+        <button class="btn-perigo" onclick="fecharCardEdicaoSessao()">Cancelar</button>
+      </div>
     </div>
     
   </div>

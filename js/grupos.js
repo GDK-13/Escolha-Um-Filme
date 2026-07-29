@@ -3,6 +3,8 @@ if (!usuario) window.location.href = 'index.html';
 
 document.getElementById('saudacao-usuario').textContent = '👋 ' + (usuario.nome || 'Visitante');
 
+let grupoEmEdicao = null;
+
 async function carregarGrupos() {
   // Pega os ids dos grupos que o usuário participa
   const { data: memberships } = await supabaseClient
@@ -29,18 +31,28 @@ async function carregarGrupos() {
   for (const grupo of grupos) {
     const souCriador = grupo.criado_por === usuario.id;
     const colapsado = localStorage.getItem(`grupo-colapsado-${grupo.id}`) === '1';
+    
+    // Variável que verifica se este é o grupo que o usuário clicou para editar
+    const isEditing = grupoEmEdicao === grupo.id; 
+    
     const div = document.createElement('div');
     div.className = 'card';
     div.innerHTML = `
         <div class="cabecalho-grupo">
           <div class="cabecalho-grupo-titulo">
             <button class="btn-colapsar" onclick="alternarGrupo('${grupo.id}')" id="toggle-${grupo.id}">${colapsado ? '▶' : '▼'}</button>
-            <h3 id="nome-grupo-${grupo.id}">${grupo.nome}</h3>
+            ${isEditing 
+              ? `<input type="text" id="edit-grupo-${grupo.id}" value="${grupo.nome.replace(/"/g, '&quot;')}" style="flex:1; margin:0;">` 
+              : `<h3 id="nome-grupo-${grupo.id}">${grupo.nome}</h3>`
+            }
           </div>
           <div class="acoes-grupo">
             ${souCriador
-              ? `<button onclick="editarNomeGrupo('${grupo.id}', '${grupo.nome.replace(/'/g, "\\\\'")}')">Renomear</button>
-                 <button class="btn-perigo" onclick="excluirGrupo('${grupo.id}')">Excluir grupo</button>`
+              ? (isEditing 
+                  ? `<button onclick="salvarEdicaoGrupo('${grupo.id}')">Salvar</button>
+                     <button class="btn-perigo" onclick="cancelarEdicaoGrupo()">Cancelar</button>`
+                  : `<button onclick="abrirEdicaoGrupo('${grupo.id}')">Renomear</button>
+                     <button class="btn-perigo" onclick="excluirGrupo('${grupo.id}')">Excluir grupo</button>`)
               : `<button class="btn-perigo" onclick="sairDoGrupo('${grupo.id}')">Sair do grupo</button>`
             }
           </div>
@@ -197,7 +209,7 @@ async function carregarSessoesDoGrupo(groupId) {
         ${detalhes ? `<div class="detalhes-sessao">${detalhes}</div>` : ''}
       </div>
       ${souCriador ? `
-        <button class="btn-perigo" onclick="excluirSessao('${s.id}', '${groupId}')">Excluir</button>
+        <button class="btn-perigo" onclick="excluirSessao('${ s.id}', '${groupId}')">Excluir</button>
       ` : ''}
     </div>
   `;
@@ -447,24 +459,6 @@ async function excluirGrupo(groupId) {
   carregarGrupos();
 }
 
-async function editarNomeGrupo(groupId, nomeAtual) {
-  const novoNome = prompt('Novo nome do grupo:', nomeAtual);
-  if (!novoNome || !novoNome.trim() || novoNome.trim() === nomeAtual) return;
-
-  const { error } = await supabaseClient
-    .from('groups')
-    .update({ nome: novoNome.trim() })
-    .eq('id', groupId)
-    .eq('criado_por', usuario.id);
-
-  if (error) {
-    alert('Erro ao renomear grupo.');
-    return;
-  }
-
-  carregarGrupos();
-}
-
 async function excluirSessao(sessionId, groupId) {
   if (!confirm('Isso vai excluir a sessão, os filmes sugeridos e os votos dela PARA SEMPRE. Confirma?')) return;
 
@@ -519,7 +513,36 @@ function alternarGrupo(groupId) {
   localStorage.setItem(`grupo-colapsado-${groupId}`, agoraColapsado ? '1' : '0');
 }
 
+
+function abrirEdicaoGrupo(groupId) {
+  grupoEmEdicao = groupId;
+  carregarGrupos(); // Força o redesenho mostrando o input
+}
+
+function cancelarEdicaoGrupo() {
+  grupoEmEdicao = null;
+  carregarGrupos();
+}
+
+async function salvarEdicaoGrupo(groupId) {
+  const novoNome = document.getElementById(`edit-grupo-${groupId}`).value.trim();
+  if (!novoNome) return cancelarEdicaoGrupo();
+
+  const { error } = await supabaseClient
+    .from('groups')
+    .update({ nome: novoNome })
+    .eq('id', groupId)
+    .eq('criado_por', usuario.id);
+
+  if (error) { alert('Erro ao renomear grupo.'); return; }
+
+  grupoEmEdicao = null;
+  carregarGrupos();
+}
+
 // Fecha dropdowns de autocomplete ao clicar fora
 document.addEventListener('click', fecharTodosAutocomplete);
+
+
 
 carregarGrupos();

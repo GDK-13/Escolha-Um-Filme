@@ -197,7 +197,6 @@ async function carregarSessoesDoGrupo(groupId) {
         ${detalhes ? `<div class="detalhes-sessao">${detalhes}</div>` : ''}
       </div>
       ${souCriador ? `
-        <button onclick="editarTituloSessao('${s.id}', '${groupId}', '${s.titulo.replace(/'/g, "\\\\'")}')">Editar</button>
         <button class="btn-perigo" onclick="excluirSessao('${s.id}', '${groupId}')">Excluir</button>
       ` : ''}
     </div>

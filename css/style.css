@@ -667,6 +667,31 @@ textarea { resize: vertical; min-height: 60px; }
 .erro { color: var(--status-fechada); font-size: var(--tamanho-pequeno); font-weight: bold; }
 .sucesso { color: var(--status-aberta) !important; font-weight: bold; }
 
+/* ---- Toggle de Senha ---- */
+.senha-wrapper {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 8px 0; /* Mantém o espaçamento original do input */
+}
+
+.senha-wrapper input {
+  margin: 0; /* Remove a margem interna pra não desalinhar o olho */
+  padding-right: 35px; /* Evita que o texto passe por debaixo do emoji */
+}
+
+.btn-olho {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 16px;
+  user-select: none;
+  z-index: 2;
+  filter: grayscale(100%); /* (Opcional) Tira a cor do emoji pra ficar mais retrô */
+}
+
 /* ---------------- Sessões / Grupos ---------------- */
 
 .sessao-item {

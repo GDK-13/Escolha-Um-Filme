@@ -25,14 +25,20 @@
 
       <div class="aba-conteudo ativa" id="aba-entrar">
         <input type="text" id="login-nome" placeholder="Seu nome">
-        <input type="password" id="login-senha" placeholder="Senha">
+        <div class="senha-wrapper">
+          <input type="password" id="login-senha" placeholder="Senha">
+          <span class="btn-olho" onclick="toggleSenha('login-senha', this)">👁️</span>
+        </div>
         <button onclick="fazerLogin()">Entrar</button>
         <p id="login-erro" class="erro"></p>
       </div>
 
       <div class="aba-conteudo" id="aba-criar">
         <input type="text" id="cad-nome" placeholder="Seu nome">
-        <input type="password" id="cad-senha" placeholder="Crie uma senha">
+        <div class="senha-wrapper">
+          <input type="password" id="cad-senha" placeholder="Crie uma senha">
+          <span class="btn-olho" onclick="toggleSenha('cad-senha', this)">👁️</span>
+        </div>
         <button onclick="criarConta()">Cadastrar</button>
         <p id="cad-erro" class="erro"></p>
       </div>
@@ -52,6 +58,18 @@
       document.getElementById('aba-btn-entrar').classList.toggle('ativa', entrarAtiva);
       document.getElementById('aba-btn-criar').classList.toggle('ativa', !entrarAtiva);
     }
+
+    function toggleSenha(inputId, iconeEl) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        iconeEl.textContent = '🙈'; // Muda o ícone quando a senha está visível
+      } else {
+        input.type = 'password';
+        iconeEl.textContent = '👁️'; // Volta ao ícone original
+      }
+    }
+    
   </script>
 </body>
 </html>

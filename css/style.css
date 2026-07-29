@@ -1112,3 +1112,78 @@ details summary {
   padding: 2px;
   overflow: hidden;
 }
+
+/* ---- AUTOCOMPLETE DROPDOWN (Internet 1.0) ---- */
+.autocomplete-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 130px;
+  margin: 0;
+}
+
+.autocomplete-wrapper input {
+  width: 100%;
+}
+
+.autocomplete-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: var(--card-bg);
+  border: var(--card-borda);
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+}
+
+.autocomplete-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-bottom: var(--item-divisor);
+  font-family: var(--font-body);
+  font-size: var(--tamanho-pequeno);
+  color: var(--texto-geral);
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-item:hover {
+  background: var(--nav-link-hover-bg);
+  color: var(--nav-link-hover-cor);
+}
+
+.autocomplete-item strong {
+  color: var(--link-hover);
+}
+
+/* Scrollbar retro pra dropdown */
+.autocomplete-dropdown::-webkit-scrollbar {
+  width: 14px;
+}
+.autocomplete-dropdown::-webkit-scrollbar-track {
+  background: var(--card-bg);
+}
+.autocomplete-dropdown::-webkit-scrollbar-thumb {
+  background: #C0C0C0;
+  border: 1px solid #808080;
+}
+
+@media (max-width: 600px) {
+  .autocomplete-wrapper {
+    min-width: 100%;
+  }
+  .convidar {
+    flex-direction: column;
+  }
+  .convidar .autocomplete-wrapper {
+    width: 100%;
+  }
+}

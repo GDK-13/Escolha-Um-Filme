@@ -70,12 +70,12 @@ async function carregarAmigos() {
 
   const { data: comoUser } = await supabaseClient
     .from('friendships')
-    .select('amigo_id, users:amigo_id(id, nome)')
+    .select('amigo_id, users:amigo_id(id, nome, foto_url)')
     .eq('user_id', usuario.id);
 
   const { data: comoAmigo } = await supabaseClient
     .from('friendships')
-    .select('user_id, users:user_id(id, nome)')
+    .select('user_id, users:user_id(id, nome, foto_url)')
     .eq('amigo_id', usuario.id);
 
   const todos = [
@@ -93,7 +93,10 @@ async function carregarAmigos() {
 
   lista.innerHTML = unicos.map(u => `
     <div class="amigo-item">
-      <span><a href="perfil.html?id=${u.id}">${u.nome}</a></span>
+      <div class="amigo-info">
+        ${renderAvatarMini(u.foto_url)}
+        <span><a href="perfil.html?id=${u.id}">${u.nome}</a></span>
+      </div>
       <button class="btn-perigo" onclick="removerAmizade('${u.id}', '${u.nome.replace(/'/g, "\\'")}')">Desfazer amizade</button>
     </div>
   `).join('');

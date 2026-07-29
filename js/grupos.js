@@ -37,7 +37,7 @@ async function carregarGrupos() {
           </div>
           <div class="acoes-grupo">
             ${souCriador
-              ? `<button onclick="editarNomeGrupo('${grupo.id}', '${grupo.nome.replace(/'/g, "\\'")}')">Renomear</button>
+              ? `<button onclick="editarNomeGrupo('${grupo.id}', '${grupo.nome.replace(/'/g, "\\\\'")}')">Renomear</button>
                  <button class="btn-perigo" onclick="excluirGrupo('${grupo.id}')">Excluir grupo</button>`
               : `<button class="btn-perigo" onclick="sairDoGrupo('${grupo.id}')">Sair do grupo</button>`
             }
@@ -46,7 +46,10 @@ async function carregarGrupos() {
         <div class="corpo-grupo ${colapsado ? 'colapsado' : ''}" id="corpo-${grupo.id}">
           <div id="membros-${grupo.id}"><em>Carregando membros...</em></div>
           <div class="convidar">
-              <input type="text" placeholder="Nome do amigo" id="convite-${grupo.id}">
+              <div class="autocomplete-wrapper">
+                <input type="text" placeholder="Nome do amigo" id="convite-${grupo.id}" oninput="autocompletarAmigo('${grupo.id}', this.value)" onfocus="autocompletarAmigo('${grupo.id}', this.value)" autocomplete="off">
+                <div class="autocomplete-dropdown" id="autocomplete-${grupo.id}"></div>
+              </div>
               <button onclick="convidarMembro('${grupo.id}')">Adicionar ao grupo</button>
               <p class="erro" id="convite-erro-${grupo.id}"></p>
           </div>
@@ -69,6 +72,64 @@ async function carregarGrupos() {
     carregarSessoesDoGrupo(grupo.id);
     carregarHistoricoDoGrupo(grupo.id);
   }
+}
+
+// ---- Autocomplete de amigos ----
+async function autocompletarAmigo(groupId, termo) {
+  const dropdown = document.getElementById(`autocomplete-${groupId}`);
+  if (!termo || termo.trim().length === 0) {
+    dropdown.style.display = 'none';
+    dropdown.innerHTML = '';
+    return;
+  }
+
+  const amigos = await buscarAmigosComFoto();
+  const termoLower = termo.toLowerCase();
+  const filtrados = amigos.filter(a => a.nome.toLowerCase().includes(termoLower));
+
+  if (filtrados.length === 0) {
+    dropdown.style.display = 'none';
+    dropdown.innerHTML = '';
+    return;
+  }
+
+  dropdown.innerHTML = filtrados.map(a => `
+    <div class="autocomplete-item" onclick="selecionarAmigo('${groupId}', '${a.nome.replace(/'/g, "\\\\'")}')">
+      ${renderAvatarMini(a.foto_url)}
+      <span>${destacarMatch(a.nome, termo)}</span>
+    </div>
+  `).join('');
+  dropdown.style.display = 'block';
+}
+
+function destacarMatch(nome, termo) {
+  const idx = nome.toLowerCase().indexOf(termo.toLowerCase());
+  if (idx === -1) return nome;
+  return nome.substring(0, idx) +
+    '<strong>' + nome.substring(idx, idx + termo.length) + '</strong>' +
+    nome.substring(idx + termo.length);
+}
+
+function selecionarAmigo(groupId, nomeAmigo) {
+  const input = document.getElementById(`convite-${groupId}`);
+  input.value = nomeAmigo;
+  const dropdown = document.getElementById(`autocomplete-${groupId}`);
+  dropdown.style.display = 'none';
+  dropdown.innerHTML = '';
+}
+
+// Fecha o dropdown ao clicar fora
+function fecharAutocompleteGroupId(groupId) {
+  const dropdown = document.getElementById(`autocomplete-${groupId}`);
+  if (dropdown) dropdown.style.display = 'none';
+}
+
+function fecharTodosAutocomplete(e) {
+  document.querySelectorAll('.autocomplete-dropdown').forEach(d => {
+    if (!d.parentElement.contains(e.target)) {
+      d.style.display = 'none';
+    }
+  });
 }
 
 async function carregarAvisoVotacoes(groupIds) {
@@ -134,7 +195,7 @@ async function carregarSessoesDoGrupo(groupId) {
         ${detalhes ? `<div class="detalhes-sessao">${detalhes}</div>` : ''}
       </div>
       ${souCriador ? `
-        <button onclick="editarTituloSessao('${s.id}', '${groupId}', '${s.titulo.replace(/'/g, "\\'")}')">Editar</button>
+        <button onclick="editarTituloSessao('${s.id}', '${groupId}', '${s.titulo.replace(/'/g, "\\\\'")}')">Editar</button>
         <button class="btn-perigo" onclick="excluirSessao('${s.id}', '${groupId}')">Excluir</button>
       ` : ''}
     </div>
@@ -200,7 +261,7 @@ async function carregarMembrosDoGrupo(groupId) {
   const userIds = (memberships || []).map(m => m.user_id);
   const { data: membros } = await supabaseClient
     .from('users')
-    .select('id, nome')
+    .select('id, nome, foto_url')
     .in('id', userIds);
 
   const el = document.getElementById(`membros-${groupId}`);
@@ -208,11 +269,11 @@ async function carregarMembrosDoGrupo(groupId) {
     (membros || []).map(m => {
       const ehCriador = m.id === (grupo && grupo.criado_por);
       const podeRemover = souCriadorDoGrupo && !ehCriador;
-      return `<span class="membro-item">${m.nome}${ehCriador ? ' (dono)' : ''}${
-        podeRemover
-          ? ` <button class="btn-perigo btn-mini" onclick="removerMembro('${groupId}', '${m.id}', '${m.nome.replace(/'/g, "\\'")}')">remover</button>`
-          : ''
-      }</span>`;
+      const avatarHtml = renderAvatarMini(m.foto_url);
+      const nomeEsc = m.nome.replace(/'/g, "\\'");
+      return '<span class="membro-item">' + avatarHtml + ' ' + m.nome + (ehCriador ? ' (dono)' : '') + (podeRemover
+          ? ' <button class="btn-perigo btn-mini" onclick="removerMembro(\'' + groupId + '\', \'' + m.id + '\', \'' + nomeEsc + '\')">remover</button>'
+          : '') + '</span>';
     }).join(', ');
 }
 
@@ -393,7 +454,7 @@ async function editarNomeGrupo(groupId, nomeAtual) {
     .from('groups')
     .update({ nome: novoNome.trim() })
     .eq('id', groupId)
-    .eq('criado_por', usuario.id); // garante que só o criador edita, mesmo se alguém tentar chamar isso na mão
+    .eq('criado_por', usuario.id);
 
   if (error) {
     alert('Erro ao renomear grupo.');
@@ -456,5 +517,8 @@ function alternarGrupo(groupId) {
   toggleBtn.textContent = agoraColapsado ? '▶' : '▼';
   localStorage.setItem(`grupo-colapsado-${groupId}`, agoraColapsado ? '1' : '0');
 }
+
+// Fecha dropdowns de autocomplete ao clicar fora
+document.addEventListener('click', fecharTodosAutocomplete);
 
 carregarGrupos();

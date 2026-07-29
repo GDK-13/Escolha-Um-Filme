@@ -73,3 +73,36 @@ function logout() {
   localStorage.removeItem('usuario');
   window.location.href = 'index.html';
 }
+
+// ---- Utilitário: mini avatar ----
+function renderAvatarMini(fotoUrl) {
+  if (fotoUrl) {
+    return `<img src="${fotoUrl}" class="avatar-mini" alt="foto de perfil">`;
+  }
+  return `<span class="avatar-mini-vazio">?</span>`;
+}
+
+// ---- Utilitário: buscar lista de amigos com foto_url (cacheada por sessão de página) ----
+let _cacheAmigosComFoto = null;
+async function buscarAmigosComFoto() {
+  if (_cacheAmigosComFoto) return _cacheAmigosComFoto;
+
+  const usuario = getUsuarioLogado();
+  const { data: comoUser } = await supabaseClient
+    .from('friendships')
+    .select('amigo_id, users:amigo_id(id, nome, foto_url)')
+    .eq('user_id', usuario.id);
+
+  const { data: comoAmigo } = await supabaseClient
+    .from('friendships')
+    .select('user_id, users:user_id(id, nome, foto_url)')
+    .eq('amigo_id', usuario.id);
+
+  const todos = [
+    ...(comoUser || []).map(f => f.users),
+    ...(comoAmigo || []).map(f => f.users)
+  ];
+
+  _cacheAmigosComFoto = Array.from(new Map(todos.map(u => [u.id, u])).values());
+  return _cacheAmigosComFoto;
+}
